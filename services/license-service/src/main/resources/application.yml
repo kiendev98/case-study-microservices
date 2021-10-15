@@ -1,0 +1,12 @@
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    enabled-by-default: true
+
+  health:
+    db:
+      enabled: false
+    diskspace:
+      enabled: true
