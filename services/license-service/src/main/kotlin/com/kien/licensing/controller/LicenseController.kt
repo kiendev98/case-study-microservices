@@ -2,8 +2,6 @@ package com.kien.licensing.controller
 
 import com.kien.licensing.model.License
 import com.kien.licensing.service.LicenseService
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
@@ -16,53 +14,31 @@ class LicenseController(
 
     @GetMapping("/{licenseId}")
     fun getLicense(
-        @PathVariable licenseId: String,
-        @PathVariable organizationId: String
+        @PathVariable licenseId: Long,
+        @PathVariable organizationId: Long
     ): Mono<License> =
         licenseService.getLicense(licenseId, organizationId)
-            .map { license ->
-                license.add(
-                    linkTo(
-                        methodOn(LicenseController::class.java)
-                            .getLicense(licenseId, license.licenseId!!)
-                    ).withSelfRel(),
-                    linkTo(
-                        methodOn(LicenseController::class.java)
-                            .createLicense(organizationId, license)
-                    ).withRel("createLicense"),
-                    linkTo(
-                        methodOn(LicenseController::class.java)
-                            .updateLicense(organizationId, license)
-                    ).withRel("updateLicense"),
-                    linkTo(
-                        methodOn(LicenseController::class.java)
-                            .deleteLicense(license.licenseId!!, organizationId)
-                    ).withRel("deleteLicense")
-                )
-                license
-            }
 
     @PostMapping
     fun createLicense(
-        @PathVariable organizationId: String,
+        @PathVariable organizationId: Long,
         @RequestBody request: License
-    ): Mono<ResponseEntity<String>> =
+    ): Mono<ResponseEntity<License>> =
         licenseService.createLicense(request, organizationId)
             .map { ResponseEntity.ok(it) }
 
     @PutMapping
     fun updateLicense(
-        @PathVariable("organizationId") organizationId: String,
+        @PathVariable("organizationId") organizationId: Long,
         @RequestBody request: License
-    ): Mono<ResponseEntity<String>> =
-        licenseService.updateLicense(request, organizationId)
+    ): Mono<ResponseEntity<License>> =
+        licenseService.updateLicense(request)
             .map { ResponseEntity.ok(it) }
 
     @DeleteMapping("/{licenseId}")
     fun deleteLicense(
-        @PathVariable licenseId: String,
-        @PathVariable organizationId: String
-    ): Mono<ResponseEntity<String>> =
-        licenseService.deleteLicense(licenseId, organizationId)
-            .map { ResponseEntity.ok(it) }
+        @PathVariable licenseId: Long
+    ): Mono<ResponseEntity<Void>> =
+        licenseService.deleteLicense(licenseId)
+            .map { ResponseEntity.ok().build() }
 }

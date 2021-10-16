@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   license-service:
-    image: kien/license-service
+    image: case-study-microservices/license-service
     ports:
       - "8080:8080"
     environment:
@@ -10,7 +10,7 @@ services:
     networks:
       backend:
         aliases:
-          - "license-service:"
+          - "license-service"
 
 networks:
   backend:

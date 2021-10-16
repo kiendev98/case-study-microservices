@@ -1,30 +1,22 @@
 package com.kien.licensing.service
 
 import com.kien.licensing.model.License
+import com.kien.licensing.repository.LicenseRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import kotlin.random.Random
 
 @Service
-class LicenseService {
-    fun getLicense(licenseId: String, organizationId: String): Mono<License> =
-        Mono.just(
-            License(
-                id = Random.nextInt(1000),
-                licenseId = licenseId,
-                organizationId = organizationId,
-                description = "Software product",
-                productName = "Ostock",
-                licenseType = "full"
-            )
+class LicenseService(
+    private val licenseRepository: LicenseRepository
+) {
+    fun getLicense(licenseId: Long, organizationId: Long): Mono<License> = licenseRepository.findByLicenseId(licenseId)
+
+    fun updateLicense(license: License): Mono<License> = licenseRepository.save(license)
+
+    fun deleteLicense(licenseId: Long): Mono<Void> = licenseRepository.deleteByLicenseId(licenseId)
+
+    fun createLicense(license: License, organizationId: Long): Mono<License> =
+        licenseRepository.save(
+            license.copy(organizationId = organizationId)
         )
-
-    fun createLicense(license: License, organizationId: String): Mono<String> =
-        Mono.just("This is a post and the object is: ${license.copy(organizationId = organizationId)}")
-
-    fun updateLicense(license: License, organizationId: String): Mono<String> =
-        Mono.just("This is a put and the object is: ${license.copy(organizationId = organizationId)}")
-
-    fun deleteLicense(licenseId: String, organizationId: String): Mono<String> =
-        Mono.just("Deleting license with id $licenseId for organization $organizationId")
 }

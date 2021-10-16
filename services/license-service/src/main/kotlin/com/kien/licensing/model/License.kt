@@ -1,12 +1,13 @@
 package com.kien.licensing.model
 
-import org.springframework.hateoas.RepresentationModel
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 
+@Table
 data class License(
-    val id: Int?,
-    val organizationId: String?,
-    val licenseId: String?,
+    @Id val licenseId: Long?,
+    val organizationId: Long?,
     val description: String,
     val productName: String,
     val licenseType: String
-): RepresentationModel<License>()
+)

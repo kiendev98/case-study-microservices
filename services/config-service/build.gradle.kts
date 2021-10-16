@@ -29,6 +29,7 @@ dependencyManagement {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
     implementation("org.springframework.cloud:spring-cloud-config-server")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 }
@@ -66,6 +67,7 @@ tasks.register("prepareBuildImage", Copy::class) {
 tasks.register("buildImages", DockerBuildImage::class) {
     dependsOn("prepareBuildImage")
     inputDir.set(file("$buildDir/docker"))
-    images.add("kien/${project.name}:latest")
+    images.add("${rootProject.name}/${project.name}:latest")
+    images.add("${rootProject.name}/${project.name}:$version")
     buildArgs.put("JAR_FILE", bootJar.archiveFileName)
 }
