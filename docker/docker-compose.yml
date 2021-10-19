@@ -1,16 +1,50 @@
-version: "3.7"
+version: "2.1"
 
 services:
+  database:
+    image: postgres:latest
+    ports:
+      - "5432:8050"
+    environment:
+      POSTGRES_ADMIN: "postgres"
+      POSTGRES_USER: "ostock"
+      POSTGRES_DB:  "password"
+    networks:
+      backend:
+        - aliases:
+            - "database"
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  config-service:
+    image: case-study-microservices/config-service
+    ports:
+      - "8071:8071"
+    networks:
+      backend:
+        aliases:
+          - "config-service"
+
   license-service:
     image: case-study-microservices/license-service
     ports:
       - "8080:8080"
     environment:
-      - "SPRING_PROFILES_ACTIVE=dev"
+      PROFILE: "dev"
+      CONFIGSERVER_URL: "http://config-service:8071"
+      CONFIGSERVER_PORT: "8071"
+      DATABASESERVER_PORT: "5432"
+    depends_on:
+      database:
+        condition: service_healthy
+      config-service:
+        condition: service_started
     networks:
-      backend:
-        aliases:
-          - "license-service"
+      - backend
 
 networks:
   backend:
