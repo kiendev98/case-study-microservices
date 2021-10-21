@@ -4,15 +4,18 @@ services:
   database:
     image: postgres:latest
     ports:
-      - "5432:8050"
+      - "8050:5432"
     environment:
-      POSTGRES_ADMIN: "postgres"
       POSTGRES_USER: "ostock"
-      POSTGRES_DB:  "password"
+      POSTGRES_PASSWORD:  "password"
+      POSTGRES_DB: "ostock"
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/1-init.sql
+      - ./database/data.sql:/docker-entrypoint-initdb.d/2-data.sql
     networks:
       backend:
-        - aliases:
-            - "database"
+        aliases:
+          - "database"
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -29,6 +32,20 @@ services:
         aliases:
           - "config-service"
 
+  eureka-service:
+    image: case-study-microservices/eureka-service
+    ports:
+      - "8070:8070"
+    depends_on:
+      database:
+        condition: service_healthy
+      config-service:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - "eureka-service"
+
   license-service:
     image: case-study-microservices/license-service
     ports:
@@ -43,6 +60,23 @@ services:
         condition: service_healthy
       config-service:
         condition: service_started
+    networks:
+      - backend
+
+  organization-service:
+    image: case-study-microservices/organization-service
+    environment:
+      PROFILE: "dev"
+      CONFIGSERVER_URI: "http://configserver:8071"
+      CONFIGSERVER_PORT: "8071"
+      DATABASESERVER_PORT: "5432"
+    depends_on:
+      database:
+        condition: service_healthy
+      config-service:
+        condition: service_started
+    ports:
+      - "8080:8081"
     networks:
       - backend
 

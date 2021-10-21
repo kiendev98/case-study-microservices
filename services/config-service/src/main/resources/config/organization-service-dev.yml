@@ -1,8 +1,8 @@
 example:
-  property: I AM PROD
+  property: I AM DEV
 
 spring:
   r2dbc:
-    url: "r2dbc:postgresql://localhost:5432/ostock"
+    url: "r2dbc:postgresql://localhost:8050/ostock"
     username: "ostock"
     password: "password"

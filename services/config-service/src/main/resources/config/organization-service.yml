@@ -18,5 +18,4 @@ eureka:
       defaultZone: http://localhost:8070/eureka/
 
 server:
-  port:
-    8080
+  port: 8081

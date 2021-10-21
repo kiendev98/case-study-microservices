@@ -17,5 +17,9 @@ pluginManagement {
     }
 }
 
+include("docker")
+
 include("services:license-service")
+include("services:organization-service")
 include("services:config-service")
+include("services:eureka-service")

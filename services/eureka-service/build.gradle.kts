@@ -1,12 +1,17 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("com.bmuschko.docker-remote-api")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
+    id("com.bmuschko.docker-remote-api")
+}
+
+repositories {
+    mavenCentral()
 }
 
 group = "com.kien"
@@ -21,44 +26,24 @@ dependencyManagement {
     }
 }
 
-
-repositories {
-    mavenCentral()
-}
-
-
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-
-    implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client") {
+    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server") {
         exclude(
             group = "com.netflix.ribbon",
             module = "ribbon-eureka"
         )
     }
-    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
 
-
-    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-    runtimeOnly("io.r2dbc:r2dbc-postgresql")
-    runtimeOnly("org.postgresql:postgresql")
-
+    implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "11"
@@ -70,7 +55,7 @@ tasks.withType<Test> {
 }
 
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "11"

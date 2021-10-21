@@ -3,6 +3,6 @@ example:
 
 spring:
   r2dbc:
-    url: "r2dbc:postgresql://localhost:5432/ostock"
+    url: "r2dbc:postgresql://localhost:8050/ostock"
     username: "ostock"
     password: "password"
