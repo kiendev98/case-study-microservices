@@ -22,12 +22,4 @@ class OrganizationDiscoveryClient(
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
             .bodyToMono(Organization::class.java)
-            .defaultIfEmpty(
-                Organization(
-                    id = 1,
-                    name = "sdf",
-                    contactEmail = "sdf",
-                    contactPhone = "sdf",
-                    contactName = "sdf"
-            ))
 }
