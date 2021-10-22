@@ -1,6 +1,7 @@
 package com.kien.licensing.service.client
 
 import com.kien.licensing.model.Organization
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import org.springframework.cloud.client.discovery.DiscoveryClient
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -13,6 +14,7 @@ class OrganizationDiscoveryClient(
     private val webClientBuilder: WebClient.Builder
 ) {
 
+    @CircuitBreaker(name = "organizationService")
     fun getOrganization(organizationId: Long): Mono<Organization> =
         webClientBuilder
             .baseUrl("http://organization-service")

@@ -51,6 +51,9 @@ dependencies {
     runtimeOnly("io.r2dbc:r2dbc-postgresql")
     runtimeOnly("org.postgresql:postgresql")
 
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

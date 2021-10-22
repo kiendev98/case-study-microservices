@@ -14,6 +14,7 @@ version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val springCloudVersion: String by project
+val resilience4jVersion: String by project
 
 dependencyManagement {
     imports {
@@ -53,6 +54,9 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
+
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")

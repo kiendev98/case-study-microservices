@@ -3,8 +3,7 @@ package com.kien.licensing.service
 import com.kien.licensing.model.License
 import com.kien.licensing.repository.LicenseRepository
 import com.kien.licensing.service.client.OrganizationDiscoveryClient
-import org.springframework.data.annotation.Id
-import org.springframework.data.relational.core.mapping.Column
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
@@ -13,6 +12,8 @@ class LicenseService(
     private val licenseRepository: LicenseRepository,
     private val organizationDiscoveryClient: OrganizationDiscoveryClient
 ) {
+
+    @CircuitBreaker(name = "licenseService", fallbackMethod = "abc")
     fun getLicense(licenseId: Long, organizationId: Long): Mono<License> =
         Mono.zip(
             licenseRepository.findByOrganizationIdAndLicenseId(organizationId, licenseId),
