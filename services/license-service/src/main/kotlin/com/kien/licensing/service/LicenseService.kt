@@ -6,8 +6,6 @@ import com.kien.licensing.service.client.OrganizationDiscoveryClient
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import java.util.concurrent.TimeoutException
-import kotlin.random.Random
 
 @Service
 class LicenseService(
@@ -15,30 +13,12 @@ class LicenseService(
     private val organizationDiscoveryClient: OrganizationDiscoveryClient
 ) {
 
-    private fun randomRunLong() {
-        val randomNum = Random.nextInt(3) + 1
-        sleep()
-    }
-
-    private fun sleep() {
-        try {
-            Thread.sleep(5000)
-            throw TimeoutException()
-        } catch (e: InterruptedException) {
-            println(e.message)
-        }
-    }
-
-    @CircuitBreaker(name = "licenseService")
+    @CircuitBreaker(name = "licenseService", fallbackMethod = "abc")
     fun getLicense(licenseId: Long, organizationId: Long): Mono<License> =
         Mono.zip(
             licenseRepository.findByOrganizationIdAndLicenseId(organizationId, licenseId),
             organizationDiscoveryClient.getOrganization(organizationId)
-        )
-            .map {
-                randomRunLong()
-                it.t1 + it.t2
-            }
+        ).map { it.t1 + it.t2 }
 
     fun updateLicense(license: License): Mono<License> = licenseRepository.save(license)
 

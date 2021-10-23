@@ -8,3 +8,19 @@ spring:
   cloud:
     config:
       uri: http://localhost:8071
+
+resilience4j:
+  circuitbreaker:
+    licenseService:
+      registerHealthIndicator: true
+      rungBufferSizeInClosedState: 5
+      ringBufferSizeInHalfOpenState: 3
+      waitDurationInOpenState: 10s
+      failureRateThreshold: 50
+
+    organizationService:
+      registerHealthIndicator: true
+      ringBufferSizeInClosedState: 6
+      ringBufferSizeInHalfOpenState: 4
+      waitDurationinOpenState: 20s
+      failureRateThreshold: 60
