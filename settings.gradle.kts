@@ -19,7 +19,9 @@ pluginManagement {
 
 include("docker")
 
-include("services:license-service")
-include("services:organization-service")
-include("services:config-service")
-include("services:eureka-service")
+include("api")
+include("util")
+include("microservices:product-service")
+include("microservices:review-service")
+include("microservices:recommendation-service")
+include("microservices:product-composite-service")

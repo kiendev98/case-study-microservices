@@ -1,8 +1,0 @@
-example:
-  property: I AM DEV
-
-spring:
-  r2dbc:
-    url: "r2dbc:postgresql://localhost:8050/ostock"
-    username: "ostock"
-    password: "password"
