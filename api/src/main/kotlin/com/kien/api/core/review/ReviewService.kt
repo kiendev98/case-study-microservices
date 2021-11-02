@@ -16,5 +16,5 @@ interface ReviewService {
         value = ["/review"],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun getReviews(@RequestParam(value = "productId", required = true) productId: String): List<Review>
+    fun getReviews(@RequestParam(value = "productId", required = true) productId: Int): List<Review>
 }

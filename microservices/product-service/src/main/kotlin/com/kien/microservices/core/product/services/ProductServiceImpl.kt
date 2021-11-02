@@ -4,8 +4,8 @@ import com.kien.api.core.product.Product
 import com.kien.api.core.product.ProductService
 import com.kien.api.exceptions.InvalidInputException
 import com.kien.api.exceptions.NotFoundException
-import com.kien.api.log.logWithClass
 import com.kien.util.http.ServiceUtil
+import com.kien.util.logs.logWithClass
 import org.springframework.web.bind.annotation.RestController
 
 private val LOG = logWithClass<ProductServiceImpl>()

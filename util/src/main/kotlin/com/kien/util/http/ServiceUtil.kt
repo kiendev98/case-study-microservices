@@ -1,12 +1,9 @@
 package com.kien.util.http
 
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.net.InetAddress
 import java.net.UnknownHostException
-
-private val LOG = LoggerFactory.getLogger(ServiceUtil::class.java)
 
 @Component
 class ServiceUtil(

@@ -4,9 +4,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 
-@SpringBootApplication
-class ProductServiceApplication
+@SpringBootApplication(scanBasePackages = ["com.kien"])
+class RecommendationServiceApplication
 
 fun main(args: Array<String>) {
-    runApplication<ProductServiceApplication>(*args)
+    runApplication<RecommendationServiceApplication>(*args)
 }
