@@ -3,7 +3,7 @@ plugins {
 }
 
 dockerCompose {
-    useComposeFiles.add("docker/docker-compose.yml")
+    useComposeFiles.add("docker-compose.yml")
 
     nested("database").apply {
         startedServices.add("database")

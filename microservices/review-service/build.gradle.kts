@@ -4,6 +4,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
+    kotlin("plugin.jpa")
     id("com.bmuschko.docker-remote-api")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
@@ -11,10 +12,11 @@ plugins {
 
 group = "com.kien.microservices.core.review"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_16
 
 val springCloudVersion: String by project
 val kotestVersion: String by project
+val testContainerVersion: String by project
 
 dependencyManagement {
     imports {
@@ -34,6 +36,8 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.postgresql:postgresql")
 
     implementation(project(":api"))
     implementation(project(":util"))
@@ -50,12 +54,16 @@ dependencies {
         )
     }
     testImplementation("io.projectreactor:reactor-test")
+    implementation(platform("org.testcontainers:testcontainers-bom:$testContainerVersion"))
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "16"
     }
 }
 
@@ -67,7 +75,7 @@ tasks.withType<Test> {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "16"
     }
 }
 

@@ -9,12 +9,17 @@ plugins {
     id("io.spring.dependency-management")
 }
 
+allOpen {
+    annotation("org.springframework.data.mongodb.core.mapping.Document")
+}
+
 group = "com.kien.microservices.core.product"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_16
 
 val springCloudVersion: String by project
 val kotestVersion: String by project
+val testContainerVersion: String by project
 
 dependencyManagement {
     imports {
@@ -27,7 +32,6 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -38,6 +42,7 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":util"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -50,12 +55,16 @@ dependencies {
         )
     }
     testImplementation("io.projectreactor:reactor-test")
+    implementation(platform("org.testcontainers:testcontainers-bom:$testContainerVersion"))
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:mongodb")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "16"
     }
 }
 
@@ -67,7 +76,7 @@ tasks.withType<Test> {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "16"
     }
 }
 

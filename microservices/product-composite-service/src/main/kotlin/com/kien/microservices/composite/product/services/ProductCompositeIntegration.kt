@@ -69,6 +69,39 @@ class ProductCompositeIntegration(
         }
     }
 
+    override fun createProduct(body: Product): Product = try {
+        val url = productServiceUrl
+        LOG.debug("Will post a new product to URL: {}", url)
+
+        val product = restTemplate.postForObject(url, body, Product::class.java)!!
+
+        LOG.debug("Created a product with id: {}", product.productId)
+
+        product
+    } catch (ex: HttpClientErrorException) {
+        throw handleHttpClientException(ex)
+    }
+
+    private fun handleHttpClientException(ex: HttpClientErrorException): Throwable =
+        when (ex.statusCode) {
+            HttpStatus.NOT_FOUND -> NotFoundException(ex.errorMessage)
+            HttpStatus.UNPROCESSABLE_ENTITY -> InvalidInputException(ex.errorMessage)
+            else -> {
+                LOG.warn("Got an unexpected HTTP error: {}, will rethrow it", ex.statusCode)
+                LOG.warn("Error body: {}", ex.responseBodyAsString)
+                ex
+            }
+        }
+
+    override fun deleteProduct(productId: Int) = try {
+        val url = "$productServiceUrl/$productId"
+        LOG.debug("Will call the deleteProduct API on URL: {}", url)
+
+        restTemplate.delete(url)
+    } catch (ex: HttpClientErrorException) {
+        throw handleHttpClientException(ex)
+    }
+
     private val HttpClientErrorException.errorMessage: String
         get() {
             return try {

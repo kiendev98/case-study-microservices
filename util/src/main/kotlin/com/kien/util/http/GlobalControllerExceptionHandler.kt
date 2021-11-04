@@ -1,5 +1,6 @@
 package com.kien.util.http
 
+import com.kien.api.exceptions.BadRequestException
 import com.kien.api.exceptions.InvalidInputException
 import com.kien.api.exceptions.NotFoundException
 import com.kien.util.logs.logWithClass
@@ -15,6 +16,16 @@ private val LOG = logWithClass<GlobalControllerExceptionHandler>()
 
 @RestControllerAdvice
 class GlobalControllerExceptionHandler {
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException::class)
+    @ResponseBody
+    fun handleBadRequestExceptions(
+        request: ServerHttpRequest,
+        ex: BadRequestException
+    ): HttpErrorInfo {
+        return createHttpErrorInfo(HttpStatus.BAD_REQUEST, request!!, ex)
+    }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException::class)

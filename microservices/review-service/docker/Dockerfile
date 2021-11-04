@@ -1,13 +1,14 @@
-FROM adoptopenjdk:11-jre-hotspot as builder
-WORKDIR application
+FROM adoptopenjdk:16_36-jre-hotspot as  jar_extraction
 ARG JAR_FILE
-COPY ${JAR_FILE} application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+WORKDIR extracted
+COPY ${JAR_FILE} app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
 
-FROM adoptopenjdk:11-jre-hotspot
+FROM adoptopenjdk:16_36-jre-hotspot
 WORKDIR application
-COPY --from=builder application/dependencies/ ./
-COPY --from=builder application/spring-boot-loader/ ./
-COPY --from=builder application/snapshot-dependencies/ ./
-COPY --from=builder application/application/ ./
+COPY --from=jar_extraction extracted/dependencies/ ./
+COPY --from=jar_extraction extracted/spring-boot-loader/ ./
+COPY --from=jar_extraction extracted/snapshot-dependencies/ ./
+COPY --from=jar_extraction extracted/application/ ./
+EXPOSE 8080
 ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]

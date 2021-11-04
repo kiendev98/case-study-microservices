@@ -9,6 +9,7 @@ pluginManagement {
 
     plugins {
         kotlin("jvm") version kotlinVersion
+        kotlin("plugin.jpa") version kotlinVersion
         kotlin("plugin.spring") version kotlinVersion
         id("com.bmuschko.docker-remote-api") version dockerVersion
         id("org.springframework.boot") version springBootVersion
