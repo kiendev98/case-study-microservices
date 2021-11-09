@@ -55,7 +55,7 @@ class PersistenceTests(
     }
 
     @Test
-    fun `should return error when saving duplicate productId`() {
+    fun `should return error when saving duplicated product`() {
         shouldThrow<DuplicateKeyException> {
             val entity = ProductEntity(savedEntity.productId, "n", 1)
             repository.save(entity)
@@ -63,7 +63,7 @@ class PersistenceTests(
     }
 
     @Test
-    fun `should return error when updating stale data`() {
+    fun `should return error when updating stale product`() {
         val entity1 = repository.findById(savedEntity.id!!).get()
         val entity2 = repository.findById(savedEntity.id!!).get()
 

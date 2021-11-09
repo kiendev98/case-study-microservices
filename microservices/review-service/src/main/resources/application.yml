@@ -1,12 +1,30 @@
 server.port: 7003
 server.error.include-message: always
 
+spring:
+  jpa:
+    # Strongly recommend setting this property to "none" in a production environment!
+    hibernate.ddl-auto: update
+  datasource:
+    hikari:
+      initialization-fail-timeout: 60000
+
+spring.datasource:
+  url: jdbc:postgresql://localhost/review-db
+  username: user
+  password: pwd
+
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    com.kien: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8080
+
+spring.datasource:
+  url: jdbc:postgresql://postgresql/review-db

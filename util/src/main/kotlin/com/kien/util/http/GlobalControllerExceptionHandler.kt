@@ -24,7 +24,7 @@ class GlobalControllerExceptionHandler {
         request: ServerHttpRequest,
         ex: BadRequestException
     ): HttpErrorInfo {
-        return createHttpErrorInfo(HttpStatus.BAD_REQUEST, request!!, ex)
+        return createHttpErrorInfo(HttpStatus.BAD_REQUEST, request, ex)
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

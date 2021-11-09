@@ -1,15 +1,11 @@
 package com.kien.microservices.composite.product.services
 
-import com.kien.api.composite.product.ProductAggregate
-import com.kien.api.composite.product.ProductCompositeService
-import com.kien.api.composite.product.RecommendationSummary
-import com.kien.api.composite.product.ServiceAddresses
+import com.kien.api.composite.product.*
 import com.kien.api.core.product.Product
 import com.kien.api.core.recommendation.Recommendation
 import com.kien.api.core.review.Review
 import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
-import org.springframework.boot.logging.LoggerGroup
 import org.springframework.web.bind.annotation.RestController
 
 private val LOG = logWithClass<ProductCompositeServiceImpl>()
@@ -48,12 +44,37 @@ class ProductCompositeServiceImpl(
                 it.content,
                 null
             )
-            integration.create
+            integration.createRecommendation(recommendation)
         }
+
+        body.reviews.forEach {
+            val review = Review(
+                body.productId,
+                it.reviewId,
+                it.author,
+                it.subject,
+                it.content,
+                null
+            )
+            integration.createReview(review)
+        }
+
+        LOG.debug("createCompositeProduct: composite entities created for productId: {}", body.productId)
+    } catch (rex: RuntimeException) {
+        LOG.warn("createCompositeProduct failed", rex)
+        throw rex
     }
 
     override fun deleteProduct(productId: Int) {
-        TODO("Not yet implemented")
+        LOG.debug("deleteCompositeProduct: Deletes a product aggregate for productId: {}", productId)
+
+        integration.deleteProduct(productId)
+
+        integration.deleteRecommendations(productId)
+
+        integration.deleteReviews(productId)
+
+        LOG.debug("deleteCompositeProduct: aggregate entities deleted for productId: {}", productId)
     }
 
     private fun createProductAggregate(
@@ -66,22 +87,29 @@ class ProductCompositeServiceImpl(
             product.name,
             product.weight,
             recommendations.summarised(),
-            reviews,
+            reviews.summarised(),
             ServiceAddresses(
                 serviceAddress,
                 product.serviceAddress!!,
-                recommendations.recommendationServiceAddress,
-                reviews.reviewServiceAddress
+                recommendations.serviceAddress,
+                reviews.serviceAddress
             )
         )
 
 }
 
-private val List<Recommendation>.recommendationServiceAddress: String
-    get() = first().serviceAddress
+private val List<Recommendation>.serviceAddress: String
+    @JvmName("getRecommendationServiceAddress")
+    get() = first().serviceAddress!!
 
-private val List<Review>.reviewServiceAddress: String
-    get() = first().serviceAddress
+private val List<Review>.serviceAddress: String
+    @JvmName("getReviewServiceAddress")
+    get() = first().serviceAddress!!
 
+@JvmName("summarisedRecommendation")
 private fun List<Recommendation>.summarised(): List<RecommendationSummary> =
-    map { RecommendationSummary(it.recommendationId, it.author, it.rate) }
+    map { RecommendationSummary(it.recommendationId, it.author, it.content, it.rate) }
+
+@JvmName("summarisedReview")
+private fun List<Review>.summarised(): List<ReviewSummary> =
+    map { ReviewSummary(it.reviewId, it.author, it.subject, it.content) }

@@ -1,5 +1,6 @@
 package com.kien.microservices.core.review
 
+import com.kien.util.logs.logWithClass
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
@@ -7,6 +8,11 @@ import org.springframework.boot.runApplication
 @SpringBootApplication(scanBasePackages = ["com.kien"])
 class ReviewServiceApplication
 
+val LOG = logWithClass<ReviewServiceApplication>()
+
 fun main(args: Array<String>) {
-    runApplication<ReviewServiceApplication>(*args)
+    val ctx = runApplication<ReviewServiceApplication>(*args)
+
+    val postgresqlUri = ctx.environment.getProperty("spring.datasource.url")
+    LOG.info("Connected to PostgreSQL: $postgresqlUri")
 }

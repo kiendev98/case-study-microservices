@@ -6,6 +6,6 @@ dockerCompose {
     useComposeFiles.add("docker-compose.yml")
 
     nested("database").apply {
-        startedServices.add("database")
+        startedServices.addAll("mongodb", "postgresql")
     }
 }

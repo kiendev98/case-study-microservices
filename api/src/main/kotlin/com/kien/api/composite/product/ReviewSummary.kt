@@ -1,7 +1,8 @@
 package com.kien.api.composite.product
 
 data class ReviewSummary(
-    val reviewId: String,
+    val reviewId: Int,
     val author: String,
-    val subject: String
+    val subject: String,
+    val content: String
 )

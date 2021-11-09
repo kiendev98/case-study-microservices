@@ -19,12 +19,10 @@ class ProductServiceImpl(
 ) : ProductService {
 
     override fun createProduct(body: Product): Product = try {
-        body.apiToEntity()
+        body.toEntity()
             .let { repository.save(it) }
-            .apply {
-                LOG.debug("createProduct: entity created for productId: {}", productId)
-            }
-            .let { it.entityToApi() }
+            .apply { LOG.debug("createProduct: entity created for productId: {}", productId) }
+            .let { it.toApi() }
     } catch (ex: DuplicateKeyException) {
         throw InvalidInputException("Duplicate key, Product Id: ${body.productId}")
     }
@@ -41,7 +39,7 @@ class ProductServiceImpl(
             throw InvalidInputException("Invalid productId: $productId")
         } else {
             repository.findByProductId(productId)
-                ?.let { it.entityToApi() }
+                ?.let { it.toApi() }
                 ?.apply { serviceAddress = serviceUtil.serviceAddress }
                 ?.apply { LOG.debug("getProduct: found productId: {}", productId) }
                 ?: throw NotFoundException("No product found for productId: $productId")

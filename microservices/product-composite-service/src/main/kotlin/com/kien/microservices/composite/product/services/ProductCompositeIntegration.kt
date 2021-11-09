@@ -45,6 +45,47 @@ class ProductCompositeIntegration(
         reviewServiceUrl = "http://$reviewServiceHost:$reviewServicePort/review?productId="
     }
 
+    override fun createRecommendation(body: Recommendation): Recommendation =
+        try {
+            val url = recommendationServiceUrl
+            LOG.debug("Will post a new recommendation to URL: {}", url)
+            val recommendation = restTemplate.postForObject(url, body, Recommendation::class.java)!!
+            LOG.debug("Created a recommendation with id: {}", recommendation.productId)
+            recommendation
+        } catch (ex: HttpClientErrorException) {
+            throw handleHttpClientException(ex)
+        }
+
+    override fun deleteRecommendations(productId: Int) =
+        try {
+            val url = "$recommendationServiceUrl?productId=$productId"
+            LOG.debug("Will call the deleteRecommendations API on URL: {}", url)
+            restTemplate.delete(url)
+        } catch (ex: HttpClientErrorException) {
+            throw handleHttpClientException(ex)
+        }
+
+    override fun createReview(body: Review): Review =
+        try {
+            val url = reviewServiceUrl
+            LOG.debug("Will post a new review to URL: {}", url)
+            val review = restTemplate.postForObject(url, body, Review::class.java)!!
+            LOG.debug("Created a review with id: {}", review.productId)
+            review
+        } catch (ex: HttpClientErrorException) {
+            throw handleHttpClientException(ex)
+        }
+
+
+    override fun deleteReviews(productId: Int) =
+        try {
+            val url = "$reviewServiceUrl?productId=$productId"
+            LOG.debug("Will call the deleteReviews API on URL: {}", url)
+            restTemplate.delete(url)
+        } catch (ex: HttpClientErrorException) {
+            throw handleHttpClientException(ex)
+        }
+
     override fun getProduct(productId: Int): Product {
         return try {
             val url = productServiceUrl + productId
