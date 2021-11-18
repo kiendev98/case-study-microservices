@@ -39,6 +39,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.postgresql:postgresql")
 
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
+
     implementation(project(":api"))
     implementation(project(":util"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")

@@ -7,6 +7,10 @@ import com.kien.api.core.review.Review
 import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.logging.Level
 
 private val LOG = logWithClass<ProductCompositeServiceImpl>()
 
@@ -19,21 +23,37 @@ class ProductCompositeServiceImpl(
     private val serviceAddress: String
         get() = serviceUtil.serviceAddress
 
-    override fun getProduct(productId: Int): ProductAggregate =
-        createProductAggregate(
+    @Suppress("UNCHECKED_CAST")
+    override fun getProduct(productId: Int): Mono<ProductAggregate> {
+        LOG.info("Will get composite product info for product.id={}", productId)
+        return Mono.zip(
+            {
+                createProductAggregate(
+                    it[0] as Product,
+                    it[1] as List<Recommendation>,
+                    it[2] as List<Review>
+                )
+            },
             integration.getProduct(productId),
-            integration.getRecommendations(productId),
-            integration.getReviews(productId)
+            integration.getRecommendations(productId).collectList(),
+            integration.getReviews(productId).collectList()
         )
+            .doOnError { LOG.warn("getCompositeProduct failed: {}", it.toString()) }
+            .log(LOG.name, Level.FINE)
+    }
 
-    override fun createProduct(body: ProductAggregate) = try {
+    override fun createProduct(body: ProductAggregate): Mono<Void> = try {
         LOG.debug("createCompositeProduct: creates a new composite entity for productId: {}", body.productId)
+
+        val monos = mutableListOf<Mono<*>>()
+
         val product = Product(
             productId = body.productId,
             name = body.name,
             weight = body.weight
         )
-        integration.createProduct(product)
+
+        monos.add(integration.createProduct(product))
 
         body.recommendations.forEach {
             val recommendation = Recommendation(
@@ -44,7 +64,7 @@ class ProductCompositeServiceImpl(
                 it.content,
                 null
             )
-            integration.createRecommendation(recommendation)
+            monos.add(integration.createRecommendation(recommendation))
         }
 
         body.reviews.forEach {
@@ -56,25 +76,36 @@ class ProductCompositeServiceImpl(
                 it.content,
                 null
             )
-            integration.createReview(review)
+            monos.add(integration.createReview(review))
         }
 
         LOG.debug("createCompositeProduct: composite entities created for productId: {}", body.productId)
+
+        Mono.zip({}, *monos.toTypedArray())
+            .doOnError {
+                LOG.warn("createCompositeProduct failed: {}", it.toString())
+            }.then()
+
     } catch (rex: RuntimeException) {
         LOG.warn("createCompositeProduct failed", rex)
         throw rex
     }
 
-    override fun deleteProduct(productId: Int) {
+    override fun deleteProduct(productId: Int): Mono<Void> = try {
         LOG.debug("deleteCompositeProduct: Deletes a product aggregate for productId: {}", productId)
 
-        integration.deleteProduct(productId)
-
-        integration.deleteRecommendations(productId)
-
-        integration.deleteReviews(productId)
-
-        LOG.debug("deleteCompositeProduct: aggregate entities deleted for productId: {}", productId)
+        Mono.zip(
+            {},
+            integration.deleteProduct(productId),
+            integration.deleteRecommendations(productId),
+            integration.deleteReviews(productId)
+        )
+            .doOnError { LOG.warn("delete failed: {}", it.toString()) }
+            .log(LOG.name, Level.FINE)
+            .then()
+    } catch (re: RuntimeException) {
+        LOG.warn("deleteCompositeProduct failed: {}", re.toString())
+        throw re
     }
 
     private fun createProductAggregate(

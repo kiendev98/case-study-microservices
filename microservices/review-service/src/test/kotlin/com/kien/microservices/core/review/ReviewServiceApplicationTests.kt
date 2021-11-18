@@ -1,21 +1,36 @@
 package com.kien.microservices.core.review
 
 import com.kien.api.core.review.Review
+import com.kien.api.event.Event
+import com.kien.api.event.Type
+import com.kien.api.exceptions.InvalidInputException
 import com.kien.microservices.core.review.persistence.ReviewRepository
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
+import reactor.test.StepVerifier
+import java.util.function.Consumer
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = [
+        "spring.cloud.stream.defaultBinder=rabbit",
+        "logging.level.com.kien=DEBUG"
+    ]
+)
 class ReviewServiceApplicationTests(
     @Autowired private val client: WebTestClient,
-    @Autowired private val repository: ReviewRepository
+    @Autowired private val repository: ReviewRepository,
+    @Autowired @Qualifier("messageProcessor")
+    private val messageProcessor: Consumer<Event<Int, Review>>
 ) : PostgreSqlTestBase() {
 
     @BeforeEach
@@ -30,12 +45,9 @@ class ReviewServiceApplicationTests(
 
         repository.findByProductId(productId).size shouldBe 0
 
-        postReview(productId, 1)
-            .expectStatus().isOk
-        postReview(productId, 2)
-            .expectStatus().isOk
-        postReview(productId, 3)
-            .expectStatus().isOk
+        sendCreateReviewEvent(productId, 1)
+        sendCreateReviewEvent(productId, 2)
+        sendCreateReviewEvent(productId, 3)
 
         repository.findByProductId(productId).size shouldBe 3
 
@@ -54,20 +66,15 @@ class ReviewServiceApplicationTests(
 
         repository.count() shouldBe 0
 
-        postReview(productId, reviewId)
-            .expectStatus().isOk
-            .expectBody()
-            .jsonPath("$.productId").isEqualTo(productId)
-            .jsonPath("$.reviewId").isEqualTo(reviewId)
+        sendCreateReviewEvent(productId, reviewId)
 
         repository.count() shouldBe 1
 
-        postReview(productId, reviewId)
-            .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
-            .expectBody()
-            .jsonPath("$.path").isEqualTo("/review")
-            .jsonPath("$.message").isEqualTo("Duplicate key, Product Id: 1, Review Id:1")
+        val thrown = shouldThrow<InvalidInputException> {
+            sendCreateReviewEvent(productId, reviewId)
+        }
 
+        thrown.message shouldBe  "Duplicate key, Product Id: 1, Review Id: 1"
         repository.count() shouldBe 1
     }
 
@@ -76,19 +83,15 @@ class ReviewServiceApplicationTests(
         val productId = 1
         val reviewId = 1
 
-        postReview(productId, reviewId)
-            .expectStatus().isOk
-
+        sendCreateReviewEvent(productId, reviewId)
 
         repository.findByProductId(productId).size shouldBe 1
 
-        deleteReview(productId)
-            .expectStatus().isOk
+        sendDeleteReviewEvent(productId)
 
         repository.findByProductId(productId).size shouldBe 0
 
-        deleteReview(productId)
-            .expectStatus().isOk
+        sendDeleteReviewEvent(productId)
     }
 
     @Test
@@ -138,30 +141,16 @@ class ReviewServiceApplicationTests(
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
 
-    private fun postReview(productId: Int, reviewId: Int): WebTestClient.ResponseSpec =
-        client.post()
-            .uri("/review")
-            .body(
-                Mono.just(
-                    Review(
-                        productId,
-                        reviewId,
-                        "Author $reviewId",
-                        "Subject $reviewId",
-                        "Content $reviewId",
-                        "SA"
-                    )
-                ),
-                Review::class.java
-            )
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    private fun sendCreateReviewEvent(productId: Int, reviewId: Int) {
+        val review = Review(
+            productId, reviewId,
+            "Author $reviewId", "Subject $reviewId", "Content $reviewId", "SA"
+        )
+        val event = Event(Type.CREATE, productId, review)
+        messageProcessor.accept(event)
+    }
 
-    private fun deleteReview(productId: Int): WebTestClient.ResponseSpec =
-        client.delete()
-            .uri("/review?productId=$productId")
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-
+    private fun sendDeleteReviewEvent(productId: Int) {
+        messageProcessor.accept(Event(Type.DELETE, productId, null))
+    }
 }

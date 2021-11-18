@@ -16,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
+import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
 
 
 private const val PRODUCT_ID_OK = 1
@@ -33,13 +35,36 @@ class ProductCompositeServiceApplicationTests(
     @BeforeEach
     fun setUp() {
         every { compositeIntegration.getProduct(PRODUCT_ID_OK) } returns
-                Product(PRODUCT_ID_OK, "name", 1, "mock-address")
+                Product(
+                    PRODUCT_ID_OK,
+                    "name",
+                    1,
+                    "mock-address"
+                ).toMono()
 
         every { compositeIntegration.getRecommendations(PRODUCT_ID_OK) } returns
-                listOf(Recommendation(PRODUCT_ID_OK, 1, "author", 1, "content", "mock adress"))
+                listOf(
+                    Recommendation(
+                        PRODUCT_ID_OK,
+                        1,
+                        "author",
+                        1,
+                        "content",
+                        "mock adress"
+                    )
+                ).toFlux()
 
         every { compositeIntegration.getReviews(PRODUCT_ID_OK) } returns
-                listOf(Review(PRODUCT_ID_OK, 1, "author", "subject", "content", "mock address"))
+                listOf(
+                    Review(
+                        PRODUCT_ID_OK,
+                        1,
+                        "author",
+                        "subject",
+                        "content",
+                        "mock address"
+                    )
+                ).toFlux()
 
         every { compositeIntegration.getProduct(PRODUCT_ID_NOT_FOUND) } throws
                 NotFoundException("NOT FOUND: $PRODUCT_ID_NOT_FOUND")

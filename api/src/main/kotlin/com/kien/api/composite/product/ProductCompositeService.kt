@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
 
 
 @Tag(name = "ProductComposite", description = "REST API for composite product information.")
@@ -28,7 +30,7 @@ interface ProductCompositeService {
             ApiResponse(responseCode = "422", description = "\${api.responseCodes.unprocessableEntity.description}")]
     )
     @GetMapping(value = ["/product-composite/{productId}"], produces = ["application/json"])
-    fun getProduct(@PathVariable productId: Int): ProductAggregate
+    fun getProduct(@PathVariable productId: Int): Mono<ProductAggregate>
 
     /**
      * Sample usage, see below.
@@ -49,11 +51,12 @@ interface ProductCompositeService {
             ApiResponse(responseCode = "422", description = "\${api.responseCodes.unprocessableEntity.description}")
         ]
     )
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(
         value = ["/product-composite"],
         consumes = [APPLICATION_JSON_VALUE]
     )
-    fun createProduct(@RequestBody body: ProductAggregate)
+    fun createProduct(@RequestBody body: ProductAggregate): Mono<Void>
 
     /**
      * Sample usage: "curl -X DELETE $HOST:$PORT/product-composite/1".
@@ -69,6 +72,7 @@ interface ProductCompositeService {
             ApiResponse(responseCode = "400", description = "\${api.responseCodes.badRequest.description}"),
             ApiResponse(responseCode = "422", description = "\${api.responseCodes.unprocessableEntity.description}")]
     )
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping(value = ["/product-composite/{productId}"])
-    fun deleteProduct(@PathVariable productId: Int)
+    fun deleteProduct(@PathVariable productId: Int): Mono<Void>
 }

@@ -41,8 +41,6 @@ internal class PersistenceTests(
 
         foundEntity shouldBeEqual newEntity
         repository.count() shouldBe 2
-
-        repository.count() shouldBe 2
     }
 
     @Test

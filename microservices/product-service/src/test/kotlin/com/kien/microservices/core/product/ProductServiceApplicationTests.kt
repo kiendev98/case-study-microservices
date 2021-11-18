@@ -1,36 +1,50 @@
 package com.kien.microservices.core.product
 
 import com.kien.api.core.product.Product
+import com.kien.api.event.Event
+import com.kien.api.event.Type
+import com.kien.api.exceptions.InvalidInputException
 import com.kien.microservices.core.product.persistence.ProductRepository
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.Mono.just
+import reactor.test.StepVerifier
+import java.util.function.Consumer
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProductServiceApplicationTests(
     @Autowired private val client: WebTestClient,
-    @Autowired private val repository: ProductRepository
+    @Autowired private val repository: ProductRepository,
+    @Autowired @Qualifier("messageProcessor")
+    private val messageProcessor: Consumer<Event<Int, Product>>
 ) : MongoDbTestBase() {
 
     @BeforeEach
     fun setupDb() {
-        repository.deleteAll()
+        repository.deleteAll().block()
     }
 
     @Test
     fun `should return product with Id`() {
         val productId = 1
-        postProduct(1)
-            .expectStatus().isEqualTo(HttpStatus.OK)
 
-        repository.findByProductId(productId) shouldNotBe null
+        StepVerifier.create(repository.count())
+            .expectNext(0)
+            .verifyComplete()
+
+        sendCreateProductEvent(productId)
+
+        StepVerifier.create(repository.findByProductId(productId))
+            .expectNextCount(1)
+            .verifyComplete()
 
         getProduct(1)
             .expectStatus().isEqualTo(HttpStatus.OK)
@@ -42,33 +56,33 @@ class ProductServiceApplicationTests(
     fun `should return when post duplicated product`() {
         val productId = 1
 
-        postProduct(1)
-            .expectStatus().isEqualTo(HttpStatus.OK)
+        sendCreateProductEvent(productId)
+        StepVerifier.create(repository.findByProductId(productId))
+            .expectNextCount(1)
+            .verifyComplete()
 
-        repository.findByProductId(productId) shouldNotBe null
+        val thrown = shouldThrow<InvalidInputException> {
+            sendCreateProductEvent(productId)
+        }
 
-        postProduct(productId)
-            .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
-            .expectBody()
-            .jsonPath("$.path").isEqualTo("/product")
-            .jsonPath("$.message").isEqualTo("Duplicate key, Product Id: $productId")
+        thrown.message shouldBe "Duplicate key, Product Id: $productId"
     }
 
     @Test
     fun `should delete product`() {
         val productId = 1
-        postProduct(productId)
-            .expectStatus().isEqualTo(HttpStatus.OK)
 
-        repository.findByProductId(productId) shouldNotBe null
+        sendCreateProductEvent(productId)
 
-        deleteProduct(productId)
-            .expectStatus().isEqualTo(HttpStatus.OK)
+        StepVerifier.create(repository.findByProductId(productId))
+            .expectNextCount(1)
+            .verifyComplete()
 
-        repository.findByProductId(productId) shouldBe null
+        sendDeleteProductEvent(productId)
 
-        deleteProduct(productId)
-            .expectStatus().isEqualTo(HttpStatus.OK)
+        StepVerifier.create(repository.findByProductId(productId))
+            .expectNextCount(0)
+            .verifyComplete()
     }
 
     @Test
@@ -111,20 +125,13 @@ class ProductServiceApplicationTests(
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
 
-    private fun postProduct(productId: Int): WebTestClient.ResponseSpec =
-        client.post()
-            .uri("/product")
-            .body(
-                just(Product(productId, "Name $productId", productId, "SA")),
-                Product::class.java
-            )
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    private fun sendCreateProductEvent(productId: Int) {
+        val product = Product(productId, "Name $productId", productId, "SA")
+        val event = Event(Type.CREATE, productId, product)
+        messageProcessor.accept(event)
+    }
 
-    private fun deleteProduct(productId: Int): WebTestClient.ResponseSpec =
-        client.delete()
-            .uri("/product/$productId")
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
+    private fun sendDeleteProductEvent(productId: Int) {
+        messageProcessor.accept(Event(Type.DELETE, productId, null))
+    }
 }

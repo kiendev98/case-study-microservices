@@ -8,6 +8,9 @@ import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.util.logging.Level
 
 private val LOG = logWithClass<RecommendationServiceImpl>()
 
@@ -16,40 +19,43 @@ class RecommendationServiceImpl(
     private val serviceUtil: ServiceUtil,
     private val repository: RecommendationRepository
 ) : RecommendationService {
-    override fun getRecommendations(productId: Int): List<Recommendation> {
+    override fun getRecommendations(productId: Int): Flux<Recommendation> =
         if (productId < 1) {
             throw InvalidInputException("Invalid productId: $productId")
-        }
-        return repository.findByProductId(productId)
-            .map { it.toApi() }
-            .onEach { it.serviceAddress = serviceUtil.serviceAddress }
-            .apply { LOG.debug("getRecommendations: response size: {}", size) }
-    }
+        } else {
+            LOG.info("Will get recommendations for product with id={}", productId)
 
-    override fun createRecommendation(body: Recommendation): Recommendation =
-        try {
+            repository.findByProductId(productId)
+                .log(LOG.getName(), Level.FINE)
+                .map { it.toApi() }
+                .map {
+                    it.serviceAddress = serviceUtil.serviceAddress
+                    it
+                }
+        }
+
+    override fun createRecommendation(body: Recommendation): Mono<Recommendation> =
+        if (body.productId < 1) {
+            throw InvalidInputException("Invalid productId: " + body.productId)
+        } else {
             body.toEntity()
                 .let { repository.save(it) }
-                .apply {
-                    LOG.debug(
-                        "createRecommendation: created a recommendation entity: {}/{}",
-                        body.productId,
-                        body.recommendationId
-                    )
+                .log(LOG.name, Level.FINE)
+                .onErrorMap(DuplicateKeyException::class.java) {
+                    InvalidInputException("Duplicate key, Product Id: ${body.productId}, Recommendation Id: ${body.recommendationId}")
                 }
-                .let { it.toApi() }
-        } catch (dke: DuplicateKeyException) {
-            throw InvalidInputException(
-                "Duplicate key, Product Id: ${body.productId}, Recommendation Id:${body.recommendationId}"
-            )
+                .map { it.toApi() }
         }
 
 
-    override fun deleteRecommendations(productId: Int) {
-        LOG.debug(
-            "deleteRecommendations: tries to delete recommendations for the product with productId: {}",
-            productId
-        )
-        repository.deleteAll(repository.findByProductId(productId))
-    }
+    override fun deleteRecommendations(productId: Int): Mono<Void> =
+        if (productId < 1) {
+            throw InvalidInputException("Invalid productId: $productId")
+        } else {
+            LOG.debug(
+                "deleteRecommendations: tries to delete recommendations for the product with productId: {}",
+                productId
+            )
+            repository.deleteAll(repository.findByProductId(productId))
+        }
 }

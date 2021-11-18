@@ -1,42 +1,56 @@
 package com.kien.microservices.core.recommendation
 
-import com.kien.api.core.product.Product
 import com.kien.api.core.recommendation.Recommendation
-import com.kien.api.core.review.Review
+import com.kien.api.event.Event
+import com.kien.api.event.Type
+import com.kien.api.exceptions.InvalidInputException
 import com.kien.microservices.core.recommendation.persistence.RecommendationRepository
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldThrowMessage
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
+import reactor.test.StepVerifier
+import java.util.function.Consumer
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = [
+        "spring.cloud.stream.defaultBinder=rabbit",
+        "logging.level.com.kien=DEBUG"
+    ]
+)
 class RecommendationServiceApplicationTests(
     @Autowired private val client: WebTestClient,
-    @Autowired private val repository: RecommendationRepository
+    @Autowired private val repository: RecommendationRepository,
+    @Autowired
+    @Qualifier("messageProcessor")
+    private val messageProcessor: Consumer<Event<Int, Recommendation>>
 ) : MongoDbTestBase() {
 
     @BeforeEach
     fun setupDb() {
-        repository.deleteAll()
+        repository.deleteAll().block()
     }
 
     @Test
-    fun `should return the recommendation with id`() {
+    fun `should return the recommendations with product id`() {
         val productId = 1
 
-        postRecommendation(productId, 1)
-            .expectStatus().isEqualTo(HttpStatus.OK)
-        postRecommendation(productId, 2)
-            .expectStatus().isEqualTo(HttpStatus.OK)
-        postRecommendation(productId, 3)
-            .expectStatus().isEqualTo(HttpStatus.OK)
+        sendCreateRecommendationEvent(productId, 1)
+        sendCreateRecommendationEvent(productId, 2)
+        sendCreateRecommendationEvent(productId, 3)
 
-        repository.findByProductId(productId).size shouldBe 3
+        StepVerifier.create(repository.findByProductId(productId))
+            .expectNextCount(3)
+            .verifyComplete()
 
         getRecommendation(productId)
             .expectStatus().isEqualTo(HttpStatus.OK)
@@ -52,21 +66,20 @@ class RecommendationServiceApplicationTests(
         val productId = 1
         val recommendationId = 1
 
-        postRecommendation(productId, recommendationId)
-            .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectBody()
-            .jsonPath("$.productId").isEqualTo(productId)
-            .jsonPath("$.recommendationId").isEqualTo(recommendationId)
+        sendCreateRecommendationEvent(productId, recommendationId)
 
-        repository.count() shouldBe 1
+        StepVerifier.create(repository.count())
+            .expectNext(1)
+            .verifyComplete()
 
-        postRecommendation(productId, recommendationId)
-            .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
-            .expectBody()
-            .jsonPath("$.path").isEqualTo("/recommendation")
-            .jsonPath("$.message").isEqualTo("Duplicate key, Product Id: 1, Recommendation Id:1")
+        val thrown = shouldThrow<InvalidInputException> {
+            sendCreateRecommendationEvent(productId, recommendationId)
+        }
 
-        repository.count() shouldBe 1
+        thrown.message shouldBe "Duplicate key, Product Id: 1, Recommendation Id: 1"
+        StepVerifier.create(repository.count())
+            .expectNext(1)
+            .verifyComplete()
     }
 
     @Test
@@ -74,19 +87,19 @@ class RecommendationServiceApplicationTests(
         val productId = 1
         val recommendationId = 1
 
-        postRecommendation(productId, recommendationId)
-            .expectStatus().isEqualTo(HttpStatus.OK)
+        sendCreateRecommendationEvent(productId, recommendationId)
 
-        repository.findByProductId(productId).size shouldBe 1
+        StepVerifier.create(repository.findByProductId(productId))
+            .expectNextCount(1)
+            .verifyComplete()
 
-        deleteRecommendation(productId)
-            .expectStatus()
-            .isEqualTo(HttpStatus.OK)
+        sendDeleteRecommendationEvent(productId)
 
-        repository.findByProductId(productId).size shouldBe 0
+        StepVerifier.create(repository.findByProductId(productId))
+            .expectNextCount(0)
+            .verifyComplete()
 
-        deleteRecommendation(productId)
-            .expectStatus().isOk
+        sendDeleteRecommendationEvent(productId)
     }
 
     @Test
@@ -137,29 +150,23 @@ class RecommendationServiceApplicationTests(
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
 
-    private fun postRecommendation(productId: Int, recommendationId: Int): WebTestClient.ResponseSpec =
-        client.post()
-            .uri("/recommendation")
-            .body(
-                Mono.just(
-                    Recommendation(
-                        productId,
-                        recommendationId,
-                        "Author $recommendationId",
-                        1,
-                        "Content $recommendationId",
-                        "SA"
-                    )
-                ),
-                Recommendation::class.java
+    private fun sendCreateRecommendationEvent(productId: Int, recommendationId: Int) {
+        messageProcessor.accept(
+            Event(
+                Type.CREATE, productId,
+                Recommendation(
+                    productId,
+                    recommendationId,
+                    "Author $recommendationId",
+                    recommendationId,
+                    "Content $recommendationId",
+                    "SA"
+                )
             )
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        )
+    }
 
-    private fun deleteRecommendation(productId: Int): WebTestClient.ResponseSpec =
-        client.delete()
-            .uri("/recommendation?productId=$productId")
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
+    private fun sendDeleteRecommendationEvent(productId: Int) {
+        messageProcessor.accept(Event(Type.DELETE, productId, null))
+    }
 }

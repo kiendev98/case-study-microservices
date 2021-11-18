@@ -43,11 +43,16 @@ dependencies {
     implementation(project(":util"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springdoc:springdoc-openapi-webflux-ui:$springDocOpenApiVersion")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
 
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-json:$kotestVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(
             group = "org.assertj"
@@ -57,6 +62,7 @@ dependencies {
         )
     }
     testImplementation("io.projectreactor:reactor-test")
+    testImplementation("org.springframework.cloud:spring-cloud-stream::test-binder")
 }
 
 tasks.withType<KotlinCompile> {

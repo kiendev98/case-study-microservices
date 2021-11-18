@@ -9,6 +9,9 @@ import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
+import java.util.logging.Level
 
 private val LOG = logWithClass<ProductServiceImpl>()
 
@@ -18,30 +21,40 @@ class ProductServiceImpl(
     private val repository: ProductRepository
 ) : ProductService {
 
-    override fun createProduct(body: Product): Product = try {
-        body.toEntity()
-            .let { repository.save(it) }
-            .apply { LOG.debug("createProduct: entity created for productId: {}", productId) }
-            .let { it.toApi() }
-    } catch (ex: DuplicateKeyException) {
-        throw InvalidInputException("Duplicate key, Product Id: ${body.productId}")
-    }
-
-    override fun deleteProduct(productId: Int) {
-        LOG.debug("delete product: tries to delete an entity with productId: {}", productId)
-        repository.findByProductId(productId)?.let {
-            repository.delete(it)
+    override fun createProduct(body: Product): Mono<Product> =
+        if (body.productId < 1) {
+            throw InvalidInputException("Invalid productId: ${body.productId}")
+        } else {
+            body.toEntity()
+                .let { repository.save(it) }
+                .log(LOG.name, Level.FINE)
+                .onErrorMap(DuplicateKeyException::class.java) { InvalidInputException("Duplicate key, Product Id: ${body.productId}") }
+                .map { it.toApi() }
         }
-    }
 
-    override fun getProduct(productId: Int): Product =
+    override fun deleteProduct(productId: Int): Mono<Void> =
         if (productId < 1) {
             throw InvalidInputException("Invalid productId: $productId")
         } else {
+            LOG.debug("deleteProduct: tries to delete an entity with productId: {}", productId)
             repository.findByProductId(productId)
-                ?.let { it.toApi() }
-                ?.apply { serviceAddress = serviceUtil.serviceAddress }
-                ?.apply { LOG.debug("getProduct: found productId: {}", productId) }
-                ?: throw NotFoundException("No product found for productId: $productId")
+                .log(LOG.name, Level.FINE)
+                .map { repository.delete(it) }
+                .flatMap { it }
+        }
+
+    override fun getProduct(productId: Int): Mono<Product> =
+        if (productId < 1) {
+            throw InvalidInputException("Invalid productId: $productId")
+        } else {
+            LOG.info("Will get product info for id={}", productId)
+            repository.findByProductId(productId)
+                .switchIfEmpty(NotFoundException("No product found for productId: $productId").toMono())
+                .log(LOG.name, Level.FINE)
+                .map { it.toApi() }
+                .map {
+                    it.serviceAddress = serviceUtil.serviceAddress
+                    it
+                }
         }
 }

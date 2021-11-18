@@ -15,6 +15,8 @@ import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import reactor.test.StepVerifier
+import javax.swing.plaf.synth.SynthTextFieldUI
 
 @DataMongoTest(excludeAutoConfiguration = [EmbeddedMongoAutoConfiguration::class])
 class PersistenceTests(
@@ -25,92 +27,88 @@ class PersistenceTests(
 
     @BeforeEach
     fun setupDb() {
-        repository.deleteAll()
-        val entity = ProductEntity(1, "n", 1)
-        savedEntity = repository.save(entity)
+        StepVerifier.create(repository.deleteAll()).verifyComplete();
 
-        entity shouldBeEqual savedEntity
+        val entity = ProductEntity(1, "n", 1)
+        StepVerifier.create(repository.save(entity))
+            .expectNextMatches {
+                savedEntity = it
+                entity shouldBeEqual savedEntity
+            }
+            .verifyComplete()
     }
 
     @Test
     fun `should create entity`() {
         val newEntity = ProductEntity(2, "n", 2)
-        repository.save(newEntity)
 
-        val foundEntity = repository.findById(newEntity.id!!).get()
-        newEntity shouldBeEqual foundEntity
+        StepVerifier.create(repository.save(newEntity))
+            .expectNextMatches { it.productId == newEntity.productId }
+            .verifyComplete()
 
-        repository.count() shouldBe 2
+        StepVerifier.create(repository.findById(newEntity.id!!))
+            .expectNextMatches { newEntity shouldBeEqual it }
+
+        StepVerifier.create(repository.count())
+            .expectNext(2)
+            .verifyComplete()
     }
 
     @Test
     fun `should update entity`() {
         savedEntity.name = "n2"
+
+        StepVerifier.create(repository.save(savedEntity))
+            .expectNextMatches { it.name == "n2" }
+            .verifyComplete()
+
+        StepVerifier.create(repository.findById(savedEntity.id!!))
+            .expectNextMatches { it.version == 1 && it.name == "n2" }
+            .verifyComplete()
     }
 
     @Test
     fun `should delete entity`() {
-        repository.delete(savedEntity)
-        repository.existsById(savedEntity.id!!) shouldBe false
+        StepVerifier.create(repository.delete(savedEntity)).verifyComplete()
+        StepVerifier.create(repository.existsById(savedEntity.id!!)).expectNext(false)
+    }
+
+    @Test
+    fun `should return product`() {
+        StepVerifier.create(repository.findByProductId(savedEntity.productId))
+            .expectNextMatches { it shouldBeEqual savedEntity }
+            .verifyComplete()
     }
 
     @Test
     fun `should return error when saving duplicated product`() {
-        shouldThrow<DuplicateKeyException> {
-            val entity = ProductEntity(savedEntity.productId, "n", 1)
-            repository.save(entity)
-        }
+        val entity = ProductEntity(savedEntity.productId, "n", 1)
+        StepVerifier.create(repository.save(entity))
+            .expectError(DuplicateKeyException::class.java)
+            .verify()
     }
 
     @Test
     fun `should return error when updating stale product`() {
-        val entity1 = repository.findById(savedEntity.id!!).get()
-        val entity2 = repository.findById(savedEntity.id!!).get()
+        val entity1 = repository.findById(savedEntity.id!!).block()!!
+        val entity2 = repository.findById(savedEntity.id!!).block()!!
 
         entity1.name = "n1"
-        repository.save(entity1)
+        repository.save(entity1).block()
 
-        shouldThrow<OptimisticLockingFailureException> {
-            entity2.name = "n2"
-            repository.save(entity2)
-        }
+        StepVerifier.create(repository.save(entity2))
+            .expectError(OptimisticLockingFailureException::class.java)
+            .verify()
 
-        val updatedEntity = repository.findById(savedEntity.id!!).get()
-        updatedEntity.version shouldBe 1
-        updatedEntity.name shouldBe "n1"
+        StepVerifier.create(repository.findById(savedEntity.id!!))
+            .expectNextMatches { it.version == 1 && it.name == "n1" }
+            .verifyComplete()
     }
 
-    @Test
-    fun `should return paged data`() {
-        repository.deleteAll()
-
-        val newProducts = (1001..1010)
-            .map { index -> ProductEntity(index, "name $index", index) }
-
-        repository.saveAll(newProducts)
-
-        PageRequest.of(0, 4, Sort.Direction.ASC, "productId")
-            .testNextPage(listOf(1001, 1002, 1003, 1004))
-            .testNextPage(listOf(1005, 1006, 1007, 1008))
-            .testNextPage(listOf(1009, 1010), false)
-    }
-
-    private fun Pageable.testNextPage(expectedProductIds: List<Int>, expectsNextPage: Boolean = true): Pageable = let { page ->
-        repository.findAll(this)
-            .apply {
-                content.map { it.productId } shouldContainExactly expectedProductIds
-            }
-            .apply {
-                hasNext() shouldBe expectsNextPage
-            }
-            page.next()
-    }
-
-    private infix fun ProductEntity.shouldBeEqual(product: ProductEntity) {
-        id shouldBe product.id
-        version shouldBe product.version
-        productId shouldBe product.productId
-        name shouldBe product.name
-        weight shouldBe product.weight
-    }
+    private infix fun ProductEntity.shouldBeEqual(product: ProductEntity): Boolean =
+        id == product.id &&
+                version == product.version &&
+                productId == product.productId &&
+                name == product.name &&
+                weight == product.weight
 }
