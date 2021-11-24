@@ -8,6 +8,7 @@ import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import java.util.function.Consumer
 import java.util.function.Function
 import java.util.logging.Level

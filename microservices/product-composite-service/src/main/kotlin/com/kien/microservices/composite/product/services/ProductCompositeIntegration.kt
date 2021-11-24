@@ -56,10 +56,10 @@ class ProductCompositeIntegration(
     private val webClient = webClient.build()
 
     init {
-        productServiceUrl = "http://$productServiceHost:$productServicePort/product/"
+        productServiceUrl = "http://$productServiceHost:$productServicePort"
         recommendationServiceUrl =
-            "http://$recommendationServiceHost:$recommendationServicePort/recommendation?productId="
-        reviewServiceUrl = "http://$reviewServiceHost:$reviewServicePort/review?productId="
+            "http://$recommendationServiceHost:$recommendationServicePort"
+        reviewServiceUrl = "http://$reviewServiceHost:$reviewServicePort"
     }
 
     val reviewHealth: Mono<Health>

@@ -5,7 +5,6 @@ import com.kien.api.core.recommendation.RecommendationService
 import com.kien.api.event.Event
 import com.kien.api.event.Type
 import com.kien.api.exceptions.EventProcessingException
-import com.kien.microservices.core.recommendation.persistence.RecommendationEntity
 import com.kien.util.logs.logWithClass
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

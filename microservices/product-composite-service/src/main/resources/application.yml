@@ -1,15 +1,11 @@
-server:
-  error:
-    include-message: always
-  port: 7000
-
 springdoc:
   swagger-ui.path: /openapi/swagger-ui.html
   api-docs.path: /openapi/v3/api-docs
-  packages-to-scan: com.kien.microservices.composite.product
+  packagesToScan: se.magnus.microservices.composite.product
   pathsToMatch: /**
 
 api:
+
   common:
     version: 1.0.0
     title: Sample API
@@ -25,7 +21,6 @@ api:
       url: URL TO CONTACT
       email: contact@mail.com
 
-
   responseCodes:
     ok.description: OK
     badRequest.description: Bad Request, invalid format of the request. See response message for more information
@@ -33,6 +28,7 @@ api:
     unprocessableEntity.description: Unprocessable entity, input parameters caused the processing to fail. See response message for more information
 
   product-composite:
+
     get-composite-product:
       description: Returns a composite view of the specified product id
       notes: |
@@ -66,6 +62,9 @@ api:
 
         This means that a delete request of a non-existing product will return **200 Ok**.
 
+server.port: 7000
+server.error.include-message: always
+
 app:
   product-service:
     host: localhost
@@ -78,7 +77,7 @@ app:
     port: 7003
 
 spring.cloud.stream:
-  default-binder: rabbit
+  defaultBinder: rabbit
   default.contentType: application/json
   bindings:
     products-out-0:
@@ -94,7 +93,7 @@ spring.cloud.stream:
       producer:
         required-groups: auditGroup
 
-spring.cloud.stream.default-binder:
+spring.cloud.stream.kafka.binder:
   brokers: 127.0.0.1
   defaultBrokerPort: 9092
 
@@ -107,15 +106,14 @@ spring.rabbitmq:
 logging:
   level:
     root: INFO
-    com.kien: DEBUG
+    se.magnus: DEBUG
 
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 ---
 spring.config.activate.on-profile: docker
 
-server:
-  port: 8080
+server.port: 8080
 
 app:
   product-service:
@@ -149,6 +147,8 @@ spring.cloud.stream.bindings.reviews-out-0.producer:
 
 ---
 spring.config.activate.on-profile: kafka
-spring.cloud.stream.default-binder: kafka
-spring.kafka.bootstrap-servers: kafka.9092
+
+management.health.rabbit.enabled: false
+spring.cloud.stream.defaultBinder: kafka
+spring.kafka.bootstrap-servers: kafka:9092
 spring.cloud.stream.kafka.binder.replication-factor: 1

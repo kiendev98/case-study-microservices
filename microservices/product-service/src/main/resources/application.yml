@@ -14,7 +14,7 @@ spring.cloud.stream:
   default.contentType: application/json
   bindings:
     messageProcessor-in-0:
-      destrination: products
+      destination: products
       group: productsGroup
 
 spring.cloud.stream.bindings.messageProcessor-in-0.consumer:
