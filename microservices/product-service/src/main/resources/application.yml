@@ -1,3 +1,5 @@
+spring.application.name: product-service
+
 server.port: 7001
 server.error.include-message: always
 
@@ -8,6 +10,8 @@ spring.data.mongodb:
   auto-index-creation: true
 
 spring.cloud.function.definition: messageProcessor
+
+app.eureka-server: localhost
 
 spring.cloud.stream:
   default-binder: rabbit
@@ -46,10 +50,22 @@ logging:
     com.kien: DEBUG
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${app.eureka-server}:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+
 ---
 spring.config.activate.on-profile: docker
 
 server.port: 8080
+
+app.eureka-server: eureka-service
 
 spring.data.mongodb.host: mongodb
 

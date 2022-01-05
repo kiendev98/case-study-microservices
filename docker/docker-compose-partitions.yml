@@ -78,6 +78,12 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  eureka-service:
+    image: case-study-microservices/eureka-service
+    mem_limit: 512m
+    ports:
+      - "8761:8761"
+
   mongodb:
     image: mongo:4.4.2
     mem_limit: 512m

@@ -14,15 +14,13 @@ import com.kien.api.exceptions.NotFoundException
 import com.kien.util.http.HttpErrorInfo
 import com.kien.util.logs.logWithClass
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.health.Health
+import org.springframework.cloud.stream.annotation.Output
 import org.springframework.cloud.stream.function.StreamBridge
-import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.MessageChannel
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Flux
@@ -41,26 +39,13 @@ class ProductCompositeIntegration(
     private val mapper: ObjectMapper,
     private val streamBridge: StreamBridge,
     @Qualifier("publishEventScheduler")
-    private val publishEventScheduler: Scheduler,
-    @Value("\${app.product-service.host}") productServiceHost: String,
-    @Value("\${app.product-service.port}") productServicePort: Int,
-    @Value("\${app.recommendation-service.host}") recommendationServiceHost: String,
-    @Value("\${app.recommendation-service.port}") recommendationServicePort: Int,
-    @Value("\${app.review-service.host}") reviewServiceHost: String,
-    @Value("\${app.review-service.port}") reviewServicePort: Int
+    private val publishEventScheduler: Scheduler
 ) : ProductService, RecommendationService, ReviewService {
 
-    private val productServiceUrl: String
-    private val recommendationServiceUrl: String
-    private val reviewServiceUrl: String
+    private final val productServiceUrl = "http://product-service";
+    private final val recommendationServiceUrl = "http://recommendation-service";
+    private final val reviewServiceUrl = "http://review-service";
     private val webClient = webClient.build()
-
-    init {
-        productServiceUrl = "http://$productServiceHost:$productServicePort"
-        recommendationServiceUrl =
-            "http://$recommendationServiceHost:$recommendationServicePort"
-        reviewServiceUrl = "http://$reviewServiceHost:$reviewServicePort"
-    }
 
     val reviewHealth: Mono<Health>
         get() = getHealth(reviewServiceUrl)

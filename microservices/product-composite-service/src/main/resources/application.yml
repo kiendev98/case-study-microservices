@@ -1,7 +1,9 @@
+spring.application.name: product-composite-service
+
 springdoc:
   swagger-ui.path: /openapi/swagger-ui.html
   api-docs.path: /openapi/v3/api-docs
-  packagesToScan: se.magnus.microservices.composite.product
+  packagesToScan: com.kien.microservices.composite.product
   pathsToMatch: /**
 
 api:
@@ -65,16 +67,17 @@ api:
 server.port: 7000
 server.error.include-message: always
 
-app:
-  product-service:
-    host: localhost
-    port: 7001
-  recommendation-service:
-    host: localhost
-    port: 7002
-  review-service:
-    host: localhost
-    port: 7003
+app.eureka-server: localhost
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${app.eureka-server}:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
 
 spring.cloud.stream:
   defaultBinder: rabbit
@@ -106,7 +109,7 @@ spring.rabbitmq:
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    kien.com: DEBUG
 
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
@@ -115,16 +118,7 @@ spring.config.activate.on-profile: docker
 
 server.port: 8080
 
-app:
-  product-service:
-    host: product-service
-    port: 8080
-  recommendation-service:
-    host: recommendation-service
-    port: 8080
-  review-service:
-    host: review-service
-    port: 8080
+app.eureka-server: eureka-service
 
 spring.rabbitmq.host: rabbitmq
 

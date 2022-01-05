@@ -7,10 +7,7 @@ import org.springframework.web.client.RestTemplate
 
 
 @SpringBootApplication(scanBasePackages = ["com.kien"])
-class ProductCompositeServiceApplication {
-    @Bean
-    fun restTemplate(): RestTemplate = RestTemplate()
-}
+class ProductCompositeServiceApplication
 
 fun main(args: Array<String>) {
     runApplication<ProductCompositeServiceApplication>(*args)
