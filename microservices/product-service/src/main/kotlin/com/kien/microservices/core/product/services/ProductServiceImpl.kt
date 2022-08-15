@@ -26,7 +26,7 @@ class ProductServiceImpl(
             throw InvalidInputException("Invalid productId: ${body.productId}")
         } else {
             body.toEntity()
-                .let { repository.save(it) }
+                .let { it -> repository.save(it) }
                 .log(LOG.name, Level.FINE)
                 .onErrorMap(DuplicateKeyException::class.java) { InvalidInputException("Duplicate key, Product Id: ${body.productId}") }
                 .map { it.toApi() }

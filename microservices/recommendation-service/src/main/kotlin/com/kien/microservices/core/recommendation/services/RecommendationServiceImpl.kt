@@ -26,7 +26,7 @@ class RecommendationServiceImpl(
             LOG.info("Will get recommendations for product with id={}", productId)
 
             repository.findByProductId(productId)
-                .log(LOG.getName(), Level.FINE)
+                .log(LOG.name, Level.FINE)
                 .map { it.toApi() }
                 .map {
                     it.serviceAddress = serviceUtil.serviceAddress

@@ -22,6 +22,7 @@ include("docker")
 
 include("api")
 include("util")
+include("microservices:gateway-service")
 include("microservices:eureka-service")
 include("microservices:product-service")
 include("microservices:review-service")
