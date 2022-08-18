@@ -37,8 +37,6 @@ services:
   product-composite-service:
     image: case-study-microservices/product-composite-service
     mem_limit: 512m
-    ports:
-      - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -48,8 +46,12 @@ services:
   eureka-service:
     image: case-study-microservices/eureka-service
     mem_limit: 512m
+
+  gateway-service:
+    image: case-study-microservices/gateway-service
+    mem_limit: 350m
     ports:
-      - "8761:8761"
+    - "8080:8080"
 
   mongodb:
     image: mongo:4.4.2
