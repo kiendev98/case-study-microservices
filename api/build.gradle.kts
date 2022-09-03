@@ -7,7 +7,7 @@ plugins {
 
 group = "com.kien.microservices.api"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_16
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 val springBootVersion: String by project
 val springDocOpenApiVersion: String by project
@@ -25,7 +25,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "16"
+        jvmTarget = "11"
     }
 }
 

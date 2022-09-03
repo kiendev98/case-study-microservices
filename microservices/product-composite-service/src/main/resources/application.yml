@@ -67,12 +67,17 @@ api:
 server.port: 7000
 server.error.include-message: always
 
-app.eureka-server: localhost
+app:
+  eureka-server: localhost
+  eureka:
+    username: u
+    password: p
+
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${app.eureka-server}:8761/eureka/
+      defaultZone: http://${app.eureka.username}:${app.eureka.password}@${app.eureka-server}:8761/eureka
     initialInstanceInfoReplicationIntervalSeconds: 5
     registryFetchIntervalSeconds: 5
   instance:
@@ -123,6 +128,7 @@ app.eureka-server: eureka-service
 spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
+
 
 ---
 spring.config.activate.on-profile: streaming_partitioned

@@ -32,10 +32,15 @@ repositories {
 
 
 dependencies {
+    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+    // Spring
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // Web server
     implementation("org.glassfish.jaxb:jaxb-runtime")
 
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")

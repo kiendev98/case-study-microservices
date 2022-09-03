@@ -3,6 +3,10 @@ plugins {
 }
 
 dockerCompose {
+
+    executable.set("/Users/kttran/.rd/bin/docker-compose")
+    dockerExecutable.set("/Users/kttran/.rd/bin/docker")
+
     useComposeFiles.add("docker-compose.yml")
 
     nested("database").apply {

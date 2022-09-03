@@ -1,4 +1,4 @@
-package com.kien.microservices.gatewayservice
+package com.kien.microservices.gatewayservice.config
 
 import com.kien.util.logs.logWithClass
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,10 +25,10 @@ class HealthCheckConfiguration(
     @Bean("microservices")
     fun healthCheckMicroservices(): ReactiveHealthContributor {
         val contributors = mapOf(
-                "product" to getHealthContributor("http://producjt"),
-                "recommendation" to getHealthContributor("http://recommendation"),
-                "review" to getHealthContributor("http://review"),
-                "product-composite" to getHealthContributor("http://product-composite"),
+                "product" to getHealthContributor("http://product-service"),
+                "recommendation" to getHealthContributor("http://recommendation-service"),
+                "review" to getHealthContributor("http://review-service"),
+                "product-composite" to getHealthContributor("http://product-composite-service"),
             )
 
         return CompositeReactiveHealthContributor.fromMap(contributors)

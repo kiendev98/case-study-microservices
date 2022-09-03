@@ -15,6 +15,7 @@ import com.kien.util.http.HttpErrorInfo
 import com.kien.util.logs.logWithClass
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.actuate.health.Health
+import org.springframework.cloud.stream.annotation.EnableBinding
 import org.springframework.cloud.stream.annotation.Output
 import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.http.HttpStatus
@@ -46,15 +47,6 @@ class ProductCompositeIntegration(
     private final val recommendationServiceUrl = "http://recommendation-service";
     private final val reviewServiceUrl = "http://review-service";
     private val webClient = webClient.build()
-
-    val reviewHealth: Mono<Health>
-        get() = getHealth(reviewServiceUrl)
-
-    val recommendationHealth: Mono<Health>
-        get() = getHealth(recommendationServiceUrl)
-
-    val productHealth: Mono<Health>
-        get() = getHealth(productServiceUrl)
 
     override fun createRecommendation(body: Recommendation): Mono<Recommendation> =
         Callable {

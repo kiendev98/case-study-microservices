@@ -70,19 +70,22 @@ services:
   product-composite-service:
     image: case-study-microservices/product-composite-service
     mem_limit: 512m
-    ports:
-      - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned
     depends_on:
       rabbitmq:
         condition: service_healthy
 
+  gateway-service:
+    image: case-study-microservices/gateway-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "8443:8443"
+
   eureka-service:
     image: case-study-microservices/eureka-service
     mem_limit: 512m
-    ports:
-      - "8761:8761"
 
   mongodb:
     image: mongo:4.4.2

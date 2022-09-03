@@ -77,13 +77,6 @@ tasks.withType<Test> {
 }
 
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "16"
-    }
-}
-
 tasks.withType<BootBuildImage> {
     builder = "paketobuildpacks/builder:base"
     runImage = "paketobuildpacks/run:base-cnb"

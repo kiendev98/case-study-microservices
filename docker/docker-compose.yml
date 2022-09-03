@@ -3,7 +3,6 @@ version: "2.1"
 services:
   product-service:
     image: case-study-microservices/product-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -14,7 +13,6 @@ services:
 
   recommendation-service:
     image: case-study-microservices/recommendation-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -36,7 +34,6 @@ services:
 
   product-composite-service:
     image: case-study-microservices/product-composite-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -45,17 +42,20 @@ services:
 
   eureka-service:
     image: case-study-microservices/eureka-service
-    mem_limit: 512m
 
   gateway-service:
     image: case-study-microservices/gateway-service
-    mem_limit: 350m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_SSL_KEY_STORE=file:/keystore/edge.p12
+      - SERVER_SSL_KEY_STORE_PASSWORD=testtest
+    volumes:
+      - $PWD/keystore:/keystore
     ports:
-    - "8080:8080"
+    - "8443:8443"
 
   mongodb:
     image: mongo:4.4.2
-    mem_limit: 512m
     ports:
       - "27017:27017"
     command: mongod
@@ -67,7 +67,6 @@ services:
 
   postgresql:
     image: postgres:14.0
-    mem_limit: 512m
     ports:
       - "5432:5432"
     environment:
@@ -82,7 +81,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.8.11-management
-    mem_limit: 512m
     ports:
       - "5672:5672"
       - "15672:15672"

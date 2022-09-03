@@ -185,8 +185,8 @@ fi
 waitForService curl http://$HOST:$PORT/actuator/health
 
 # Verify access to Eureka and that all four microservices are registered in Eureka
-assertCurl 200 "curl -H "accept:application/json" $HOST:8761/eureka/apps -s"
-assertEqual 4 $(echo $RESPONSE | jq ".applications.application | length")
+assertCurl 200 "curl -H "accept:application/json" $HOST:$PORT/eureka/api/apps -s"
+assertEqual 5 $(echo $RESPONSE | jq ".applications.application | length")
 
 setupTestdata
 
@@ -229,6 +229,7 @@ assertCurl 200 "curl -sL http://$HOST:$PORT/openapi/swagger-ui.html"
 assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/webjars/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config"
 assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs"
 assertEqual "3.0.1" "$(echo $RESPONSE | jq -r .openapi)"
+assertEqual "http://$HOST:$PORT" "$(echo $RESPONSE | jq -r .servers[].url)"
 assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs.yaml"
 
 if [[ $@ == *"stop"* ]]

@@ -8,9 +8,6 @@ import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import java.util.function.Consumer
-import java.util.function.Function
 import java.util.logging.Level
 
 private val LOG = logWithClass<ProductCompositeServiceImpl>()
@@ -39,56 +36,61 @@ class ProductCompositeServiceImpl(
             integration.getRecommendations(productId).collectList(),
             integration.getReviews(productId).collectList()
         )
-            .doOnError { LOG.warn("getCompositeProduct failed: {}", it.toString()) }
+            .doOnError { LOG.warn("getProduct failed: {}", it.toString()) }
             .log(LOG.name, Level.FINE)
     }
 
     override fun createProduct(body: ProductAggregate): Mono<Void> = try {
         LOG.debug("createCompositeProduct: creates a new composite entity for productId: {}", body.productId)
 
-        val monos = mutableListOf<Mono<*>>()
-
-        val product = Product(
-            productId = body.productId,
-            name = body.name,
-            weight = body.weight
+        val productMono = integration.createProduct(
+            Product(
+                productId = body.productId,
+                name = body.name,
+                weight = body.weight
+            )
         )
 
-        monos.add(integration.createProduct(product))
-
-        body.recommendations.forEach {
-            val recommendation = Recommendation(
-                body.productId,
-                it.recommendationId,
-                it.author,
-                it.rate,
-                it.content,
-                null
+        val recommendationMonos = body.recommendations.map {
+            integration.createRecommendation(
+                Recommendation(
+                    body.productId,
+                    it.recommendationId,
+                    it.author,
+                    it.rate,
+                    it.content,
+                    null
+                )
             )
-            monos.add(integration.createRecommendation(recommendation))
         }
 
-        body.reviews.forEach {
-            val review = Review(
-                body.productId,
-                it.reviewId,
-                it.author,
-                it.subject,
-                it.content,
-                null
+        val reviewMonos = body.reviews.map {
+            integration.createReview(
+                Review(
+                    body.productId,
+                    it.reviewId,
+                    it.author,
+                    it.subject,
+                    it.content,
+                    null
+                )
             )
-            monos.add(integration.createReview(review))
         }
 
-        LOG.debug("createCompositeProduct: composite entities created for productId: {}", body.productId)
+        LOG.debug("createProduct: composite entities created for productId: {}", body.productId)
 
-        Mono.zip({}, *monos.toTypedArray())
+        Mono.zip(
+            {},
+            productMono,
+            *recommendationMonos.toTypedArray(),
+            *reviewMonos.toTypedArray()
+        )
             .doOnError {
-                LOG.warn("createCompositeProduct failed: {}", it.toString())
+                LOG.warn("createProduct failed: {}", it.toString())
             }.then()
 
     } catch (rex: RuntimeException) {
-        LOG.warn("createCompositeProduct failed", rex)
+        LOG.warn("createProduct failed", rex)
         throw rex
     }
 
