@@ -5,9 +5,9 @@ import com.kien.api.event.Event
 import com.kien.api.event.Type
 import com.kien.api.exceptions.InvalidInputException
 import com.kien.microservices.core.product.persistence.ProductRepository
+import com.kien.util.test.MongoDbTestBase
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +19,10 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.test.StepVerifier
 import java.util.function.Consumer
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["eureka.client.enabled=false"]
+)
 class ProductServiceApplicationTests(
     @Autowired private val client: WebTestClient,
     @Autowired private val repository: ProductRepository,

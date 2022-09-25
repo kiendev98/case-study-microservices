@@ -24,7 +24,15 @@ private const val PRODUCT_ID_OK = 1
 private const val PRODUCT_ID_NOT_FOUND = 2
 private const val PRODUCT_ID_INVALID = 3
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = [TestSecurityConfig::class],
+    properties = [
+        "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
+        "spring.main.allow-bean-definition-overriding=true",
+        "eureka.client.enabled=false"
+    ]
+)
 class ProductCompositeServiceApplicationTests(
     @Autowired private val client: WebTestClient
 ) {
@@ -50,7 +58,7 @@ class ProductCompositeServiceApplicationTests(
                         "author",
                         1,
                         "content",
-                        "mock adress"
+                        "mock address"
                     )
                 ).toFlux()
 
@@ -74,10 +82,10 @@ class ProductCompositeServiceApplicationTests(
     }
 
     @Test
-    fun contextLoads() = Unit
+    internal fun `context loads`() = Unit
 
     @Test
-    fun getProductId() {
+    internal fun `get product`() {
         client.get()
             .uri("/product-composite/$PRODUCT_ID_OK")
             .accept(MediaType.APPLICATION_JSON)
@@ -91,7 +99,7 @@ class ProductCompositeServiceApplicationTests(
     }
 
     @Test
-    fun getProductNotFound() {
+    internal fun `get product not found`() {
         client.get()
             .uri("/product-composite/$PRODUCT_ID_NOT_FOUND")
             .accept(MediaType.APPLICATION_JSON)
@@ -104,7 +112,7 @@ class ProductCompositeServiceApplicationTests(
     }
 
     @Test
-    fun getProductInvalidInput() {
+    fun `get product with invalid input`() {
         client.get()
             .uri("/product-composite/$PRODUCT_ID_INVALID")
             .accept(MediaType.APPLICATION_JSON)

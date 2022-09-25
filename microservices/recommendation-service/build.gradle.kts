@@ -30,35 +30,38 @@ repositories {
 
 
 dependencies {
+    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 
+    // Subprojects
+    implementation(project(":api"))
+    implementation(project(":util"))
+
+    // Spring
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
 
-    implementation(project(":api"))
-    implementation(project(":util"))
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-
+    // Test
+    implementation(platform("org.testcontainers:testcontainers-bom:$testContainerVersion"))
+    testImplementation(testFixtures(project(":util")))
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(
-            group = "org.assertj"
-        )
-        exclude(
-            group = "org.mockito"
-        )
+        exclude(module = "junit")
+        exclude(module = "mockito-core")
+        exclude(module = "assertj-core")
+        exclude(module = "android-json")
+        exclude(module = "junit-vintage-engine")
     }
     testImplementation("io.projectreactor:reactor-test")
-
-    implementation(platform("org.testcontainers:testcontainers-bom:$testContainerVersion"))
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mongodb")
@@ -67,22 +70,21 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "16"
-    }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "11"
     }
 }
 
+tasks.getByName<Jar>("jar") {
+    enabled = false
+}
+
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    testLogging {
+        setEvents(listOf("passed", "failed", "skipped"))
+    }
+}
 
 tasks.withType<BootBuildImage> {
     builder = "paketobuildpacks/builder:base"

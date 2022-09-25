@@ -2,6 +2,7 @@ package com.kien.microservices.core.review
 
 import com.kien.microservices.core.review.persistence.ReviewEntity
 import com.kien.microservices.core.review.persistence.ReviewRepository
+import com.kien.util.test.PostgreSqlTestBase
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach

@@ -1,7 +1,7 @@
 version: "2.1"
 
 services:
-  product-service:
+  product:
     image: case-study-microservices/product-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
@@ -11,7 +11,7 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  recommendation-service:
+  recommendation:
     image: case-study-microservices/recommendation-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
@@ -21,9 +21,8 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  review-service:
+  review:
     image: case-study-microservices/review-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -32,18 +31,20 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  product-composite-service:
+  product-composite:
     image: case-study-microservices/product-composite-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       rabbitmq:
         condition: service_healthy
+      authorization-server:
+        condition: service_started
 
-  eureka-service:
+  eureka:
     image: case-study-microservices/eureka-service
 
-  gateway-service:
+  gateway:
     image: case-study-microservices/gateway-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
@@ -53,6 +54,14 @@ services:
       - $PWD/keystore:/keystore
     ports:
     - "8443:8443"
+    depends_on:
+      authorization-server:
+         condition: service_started
+
+  authorization-server:
+    image: case-study-microservices/authorization-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
 
   mongodb:
     image: mongo:4.4.2

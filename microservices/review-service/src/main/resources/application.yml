@@ -1,4 +1,4 @@
-spring.application.name: review-service
+spring.application.name: review
 
 server.port: 7003
 server.error.include-message: always
@@ -61,8 +61,8 @@ management.endpoints.web.exposure.include: "*"
 
 
 app:
-  eureka-server: localhost
   eureka:
+    server: localhost
     username: u
     password: p
 
@@ -70,7 +70,7 @@ app:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${app.eureka.username}:${app.eureka.password}@${app.eureka-server}:8761/eureka
+      defaultZone: http://${app.eureka.username}:${app.eureka.password}@${app.eureka.server}:8761/eureka
     initialInstanceInfoReplicationIntervalSeconds: 5
     registryFetchIntervalSeconds: 5
   instance:
@@ -81,7 +81,7 @@ spring.config.activate.on-profile: docker
 
 server.port: 8080
 
-app.eureka-server: eureka-service
+app.eureka.server: eureka
 
 spring.datasource:
   url: jdbc:postgresql://postgresql/review-db

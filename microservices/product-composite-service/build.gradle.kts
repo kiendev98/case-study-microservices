@@ -31,38 +31,49 @@ repositories {
 
 
 dependencies {
+    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 
+    // subprojects
     implementation(project(":api"))
     implementation(project(":util"))
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springdoc:springdoc-openapi-webflux-ui:$springDocOpenApiVersion")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // Spring boot
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:$springDocOpenApiVersion")
+
+    // Spring cloud
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
 
+    // Spring security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
+
+    // Test
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-json:$kotestVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(
-            group = "org.assertj"
-        )
-        exclude(
-            group = "org.mockito"
-        )
+        exclude(module = "junit")
+        exclude(module = "mockito-core")
+        exclude(module = "assertj-core")
+        exclude(module = "android-json")
+        exclude(module = "junit-vintage-engine")
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.cloud:spring-cloud-stream::test-binder")
 }
+
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
@@ -73,6 +84,9 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        setEvents(listOf("passed", "failed", "skipped"))
+    }
 }
 
 tasks.getByName<Jar>("jar") {

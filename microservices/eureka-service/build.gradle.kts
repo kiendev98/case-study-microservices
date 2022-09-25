@@ -40,19 +40,16 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
-    // Web server
-    implementation("org.glassfish.jaxb:jaxb-runtime")
-
+    // Test
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-json:$kotestVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(
-            group = "org.assertj"
-        )
-        exclude(
-            group = "org.mockito"
-        )
+        exclude(module = "junit")
+        exclude(module = "mockito-core")
+        exclude(module = "assertj-core")
+        exclude(module = "android-json")
+        exclude(module = "junit-vintage-engine")
     }
 }
 
@@ -65,6 +62,9 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        setEvents(listOf("passed", "failed", "skipped"))
+    }
 }
 
 tasks.getByName<Jar>("jar") {

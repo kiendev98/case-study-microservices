@@ -1,14 +1,19 @@
-package com.kien.microservices.eurekaservice
+package com.kien.microservices.gatewayservice
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = ["eureka.client.enabled=false"])
+@SpringBootTest(
+    webEnvironment = WebEnvironment.RANDOM_PORT,
+    properties = [
+        "eureka.client.enabled=false",
+        "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=some-url",
+    ]
+)
 class GatewayServerApplicationTests {
 
     @Test
-    fun contextLoads() {
-    }
+    internal fun `context loads`() { }
 }

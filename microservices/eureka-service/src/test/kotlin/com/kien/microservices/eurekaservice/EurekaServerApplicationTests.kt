@@ -4,6 +4,7 @@ import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpStatus
@@ -11,15 +12,17 @@ import org.springframework.http.HttpStatus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class EurekaServerApplicationTests(
-    @Autowired private val testRestTemplate: TestRestTemplate
+    @Autowired private val testRestTemplate: TestRestTemplate,
+    @Value("\${app.eureka.username}") private val username: String,
+    @Value("\${app.eureka.password}") private val password: String,
 ) {
 
     @Test
-    fun contextLoads() {
+    internal fun `context loads`() {
     }
 
     @Test
-    fun catalogLoads() {
+    internal fun `catalog loads`() {
         val expectedResponseBody = """
             {
                 "applications": {
@@ -30,7 +33,8 @@ class EurekaServerApplicationTests(
             }
         """.trimIndent()
 
-        val entity = testRestTemplate.getForEntity("/eureka/apps", String::class.java)
+        val entity = testRestTemplate.withBasicAuth(username, password)
+            .getForEntity("/eureka/apps", String::class.java)
 
         entity.statusCode shouldBe HttpStatus.OK
         entity.body shouldMatchJson expectedResponseBody
@@ -43,7 +47,9 @@ class EurekaServerApplicationTests(
                 "status": "UP"
             }
         """
-        val entity = testRestTemplate.getForEntity("/actuator/health", String::class.java)
+        val entity = testRestTemplate
+            .withBasicAuth(username, password)
+            .getForEntity("/actuator/health", String::class.java)
         entity.statusCode shouldBe HttpStatus.OK
         entity.body shouldMatchJson expectedResponseBody
     }

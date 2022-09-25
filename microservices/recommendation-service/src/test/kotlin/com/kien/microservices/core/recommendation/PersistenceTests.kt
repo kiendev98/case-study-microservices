@@ -2,6 +2,7 @@ package com.kien.microservices.core.recommendation
 
 import com.kien.microservices.core.recommendation.persistence.RecommendationEntity
 import com.kien.microservices.core.recommendation.persistence.RecommendationRepository
+import com.kien.util.test.MongoDbTestBase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

@@ -31,26 +31,31 @@ repositories {
 
 
 dependencies {
+    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.glassfish.jaxb:jaxb-runtime")
 
+    // Spring
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // Subproject
     implementation(project(":util"))
 
+    // Test
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-json:$kotestVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(
-            group = "org.assertj"
-        )
-        exclude(
-            group = "org.mockito"
-        )
+        exclude(module = "junit")
+        exclude(module = "mockito-core")
+        exclude(module = "assertj-core")
+        exclude(module = "android-json")
+        exclude(module = "junit-vintage-engine")
     }
 }
 
@@ -63,6 +68,9 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        setEvents(listOf("passed", "failed", "skipped"))
+    }
 }
 
 tasks.getByName<Jar>("jar") {

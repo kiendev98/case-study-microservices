@@ -1,4 +1,4 @@
-package com.kien.microservices.core.review
+package com.kien.util.test
 
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource

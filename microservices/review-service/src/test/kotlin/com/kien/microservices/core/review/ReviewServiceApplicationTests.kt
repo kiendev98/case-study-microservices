@@ -5,6 +5,7 @@ import com.kien.api.event.Event
 import com.kien.api.event.Type
 import com.kien.api.exceptions.InvalidInputException
 import com.kien.microservices.core.review.persistence.ReviewRepository
+import com.kien.util.test.PostgreSqlTestBase
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
@@ -15,15 +16,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.kotlin.core.publisher.toMono
-import reactor.test.StepVerifier
 import java.util.function.Consumer
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
         "spring.cloud.stream.defaultBinder=rabbit",
-        "logging.level.com.kien=DEBUG"
+        "logging.level.com.kien=DEBUG",
+        "eureka.client.enabled=false"
     ]
 )
 class ReviewServiceApplicationTests(

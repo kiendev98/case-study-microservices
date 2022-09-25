@@ -9,8 +9,8 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder
 
 @Configuration
 class SecurityConfig(
-    @Value("app.eureka.username") private val username: String,
-    @Value("app.eureka.password") private val password: String
+    @Value("\${app.eureka.username}") private val username: String,
+    @Value("\${app.eureka.password}") private val password: String
 ) : WebSecurityConfigurerAdapter() {
 
     override fun configure(auth: AuthenticationManagerBuilder) {

@@ -1,4 +1,4 @@
-spring.application.name: product-service
+spring.application.name: product
 
 server.port: 7001
 server.error.include-message: always
@@ -12,8 +12,8 @@ spring.data.mongodb:
 spring.cloud.function.definition: messageProcessor
 
 app:
-  eureka-server: localhost
   eureka:
+    server: localhost
     username: u
     password: p
 
@@ -52,12 +52,12 @@ logging:
   level:
     root: INFO
     com.kien: DEBUG
-    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${app.eureka.username}:${app.eureka.password}@${app.eureka-server}:8761/eureka
+      defaultZone: http://${app.eureka.username}:${app.eureka.password}@${app.eureka.server}:8761/eureka
     initialInstanceInfoReplicationIntervalSeconds: 5
     registryFetchIntervalSeconds: 5
   instance:
@@ -69,7 +69,7 @@ spring.config.activate.on-profile: docker
 
 server.port: 8080
 
-app.eureka-server: eureka-service
+app.eureka.server: eureka
 
 spring.data.mongodb.host: mongodb
 

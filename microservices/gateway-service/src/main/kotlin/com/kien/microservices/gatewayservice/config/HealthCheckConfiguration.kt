@@ -25,10 +25,11 @@ class HealthCheckConfiguration(
     @Bean("microservices")
     fun healthCheckMicroservices(): ReactiveHealthContributor {
         val contributors = mapOf(
-                "product" to getHealthContributor("http://product-service"),
-                "recommendation" to getHealthContributor("http://recommendation-service"),
-                "review" to getHealthContributor("http://review-service"),
-                "product-composite" to getHealthContributor("http://product-composite-service"),
+                "product" to getHealthContributor("http://product"),
+                "recommendation" to getHealthContributor("http://recommendation"),
+                "review" to getHealthContributor("http://review"),
+                "product-composite" to getHealthContributor("http://product-composite"),
+                "authorization-server" to getHealthContributor("http://authorization-server")
             )
 
         return CompositeReactiveHealthContributor.fromMap(contributors)

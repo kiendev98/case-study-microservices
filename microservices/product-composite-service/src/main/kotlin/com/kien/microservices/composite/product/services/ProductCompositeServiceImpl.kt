@@ -6,8 +6,14 @@ import com.kien.api.core.recommendation.Recommendation
 import com.kien.api.core.review.Review
 import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextImpl
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
+import java.net.URL
 import java.util.logging.Level
 
 private val LOG = logWithClass<ProductCompositeServiceImpl>()
@@ -21,20 +27,24 @@ class ProductCompositeServiceImpl(
     private val serviceAddress: String
         get() = serviceUtil.serviceAddress
 
+    private final val nullSecurityContext = SecurityContextImpl()
+
     @Suppress("UNCHECKED_CAST")
     override fun getProduct(productId: Int): Mono<ProductAggregate> {
         LOG.info("Will get composite product info for product.id={}", productId)
         return Mono.zip(
             {
+                // Ignore the first element because of logAuthorizationInfo method
                 createProductAggregate(
-                    it[0] as Product,
-                    it[1] as List<Recommendation>,
-                    it[2] as List<Review>
+                    it[1] as Product,
+                    it[2] as List<Recommendation>,
+                    it[3] as List<Review>
                 )
             },
+            logAuthorizationInfo(),
             integration.getProduct(productId),
             integration.getRecommendations(productId).collectList(),
-            integration.getReviews(productId).collectList()
+            integration.getReviews(productId).collectList(),
         )
             .doOnError { LOG.warn("getProduct failed: {}", it.toString()) }
             .log(LOG.name, Level.FINE)
@@ -81,6 +91,7 @@ class ProductCompositeServiceImpl(
 
         Mono.zip(
             {},
+            logAuthorizationInfo(),
             productMono,
             *recommendationMonos.toTypedArray(),
             *reviewMonos.toTypedArray()
@@ -99,6 +110,7 @@ class ProductCompositeServiceImpl(
 
         Mono.zip(
             {},
+            logAuthorizationInfo(),
             integration.deleteProduct(productId),
             integration.deleteRecommendations(productId),
             integration.deleteReviews(productId)
@@ -115,7 +127,7 @@ class ProductCompositeServiceImpl(
         product: Product,
         recommendations: List<Recommendation>,
         reviews: List<Review>
-    ): ProductAggregate =
+    ): ProductAggregate  =
         ProductAggregate(
             product.productId,
             product.name,
@@ -130,15 +142,50 @@ class ProductCompositeServiceImpl(
             )
         )
 
+
+    private fun logAuthorizationInfo() = securityContext()
+        .doOnNext {
+            if (it?.authentication != null && it.authentication is JwtAuthenticationToken) {
+                val jwtToken = (it.authentication as JwtAuthenticationToken).token
+                logAuthorizationInfo(jwtToken)
+            } else {
+                LOG.warn("No JWT based Authentication supplied, running tests are we?")
+            }
+        }
+
+    private fun logAuthorizationInfo(jwt: Jwt?): Unit {
+        if (jwt == null) {
+            LOG.warn("No JWT supplied, running tests are we?")
+        } else {
+            if (LOG.isDebugEnabled) {
+                val issuer = jwt.issuer
+                val audience = jwt.audience
+                val subject = jwt.claims["sub"];
+                val scopes = jwt.claims["scopes"]
+                val expires = jwt.claims["exp"]
+
+                LOG.debug(
+                    "Authorization info: Subject: {}, scopes: {}, expires: {}, issuer: {}, audience: {}",
+                    subject,
+                    scopes,
+                    expires,
+                    issuer,
+                    audience
+                )
+            }
+        }
+    }
+
+    private fun securityContext() = ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSecurityContext)
 }
 
 private val List<Recommendation>.serviceAddress: String
     @JvmName("getRecommendationServiceAddress")
-    get() = first().serviceAddress!!
+    get() = runCatching { first().serviceAddress!! }.getOrElse { "" }
 
 private val List<Review>.serviceAddress: String
     @JvmName("getReviewServiceAddress")
-    get() = first().serviceAddress!!
+    get() = runCatching { first().serviceAddress!! }.getOrElse { "" }
 
 @JvmName("summarisedRecommendation")
 private fun List<Recommendation>.summarised(): List<RecommendationSummary> =

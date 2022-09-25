@@ -1,4 +1,4 @@
-package com.kien.microservices.eurekaservice
+package com.kien.microservices.gatewayservice
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

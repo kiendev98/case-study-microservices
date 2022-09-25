@@ -2,9 +2,7 @@ package com.kien.microservices.core.product
 
 import com.kien.microservices.core.product.persistence.ProductEntity
 import com.kien.microservices.core.product.persistence.ProductRepository
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.shouldBe
+import com.kien.util.test.MongoDbTestBase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,11 +10,7 @@ import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoCo
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.dao.OptimisticLockingFailureException
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import reactor.test.StepVerifier
-import javax.swing.plaf.synth.SynthTextFieldUI
 
 @DataMongoTest(excludeAutoConfiguration = [EmbeddedMongoAutoConfiguration::class])
 class PersistenceTests(

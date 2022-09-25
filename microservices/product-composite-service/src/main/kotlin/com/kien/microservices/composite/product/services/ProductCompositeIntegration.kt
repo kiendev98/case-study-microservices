@@ -14,12 +14,8 @@ import com.kien.api.exceptions.NotFoundException
 import com.kien.util.http.HttpErrorInfo
 import com.kien.util.logs.logWithClass
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.actuate.health.Health
-import org.springframework.cloud.stream.annotation.EnableBinding
-import org.springframework.cloud.stream.annotation.Output
 import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.http.HttpStatus
-import org.springframework.messaging.MessageChannel
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -43,9 +39,9 @@ class ProductCompositeIntegration(
     private val publishEventScheduler: Scheduler
 ) : ProductService, RecommendationService, ReviewService {
 
-    private final val productServiceUrl = "http://product-service";
-    private final val recommendationServiceUrl = "http://recommendation-service";
-    private final val reviewServiceUrl = "http://review-service";
+    private final val productServiceUrl = "http://product";
+    private final val recommendationServiceUrl = "http://recommendation";
+    private final val reviewServiceUrl = "http://review";
     private val webClient = webClient.build()
 
     override fun createRecommendation(body: Recommendation): Mono<Recommendation> =
@@ -96,7 +92,9 @@ class ProductCompositeIntegration(
                     .retrieve()
                     .bodyToMono(Product::class.java)
                     .log(LOG.name, Level.FINE)
-                    .onErrorMap(WebClientResponseException::class.java) { handleException(it) }
+                    .onErrorMap(WebClientResponseException::class.java) {ex ->
+                        handleException(ex)
+                    }
             }
 
     override fun createProduct(body: Product): Mono<Product> =
@@ -169,18 +167,5 @@ class ProductCompositeIntegration(
                     .bodyToFlux(Review::class.java)
                     .log(LOG.name, Level.FINE)
                     .onErrorResume { Flux.empty() }
-            }
-
-    private fun getHealth(url: String) =
-        "$url/actuator/health"
-            .apply { LOG.debug("Will call the Health API on URL: {}", this) }
-            .let { actuatorUrl ->
-                webClient.get()
-                    .uri(actuatorUrl)
-                    .retrieve()
-                    .bodyToMono(String::class.java)
-                    .map { Health.Builder().up().build() }
-                    .onErrorResume { Health.Builder().down(it).build().toMono() }
-                    .log(LOG.name, Level.FINE)
             }
 }

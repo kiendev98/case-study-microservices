@@ -1,9 +1,8 @@
 version: "2.1"
 
 services:
-  product-service:
+  product:
     image: case-study-microservices/product-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
     depends_on:
@@ -12,9 +11,8 @@ services:
       kafka:
         condition: service_started
 
-  product-service-p1:
+  product-p1:
     image: case-study-microservices/product-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
     depends_on:
@@ -23,9 +21,8 @@ services:
       kafka:
         condition: service_started
 
-  recommendation-service:
+  recommendation:
     image: case-study-microservices/recommendation-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
     depends_on:
@@ -34,9 +31,8 @@ services:
       kafka:
         condition: service_started
 
-  recommendation-service-p1:
+  recommendation-p1:
     image: case-study-microservices/recommendation-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
     depends_on:
@@ -45,9 +41,8 @@ services:
       kafka:
         condition: service_started
 
-  review-service:
+  review:
     image: case-study-microservices/review-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
     depends_on:
@@ -56,9 +51,8 @@ services:
       kafka:
         condition: service_started
 
-  review-service-p1:
+  review-p1:
     image: case-study-microservices/review-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
     depends_on:
@@ -67,29 +61,36 @@ services:
       kafka:
         condition: service_started
 
-  product-composite-service:
+  product-composite:
     image: case-study-microservices/product-composite-service
-    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,kafka
     depends_on:
       kafka:
         condition: service_started
+      authorization-server:
+        condition: service_started
 
-  eureka-service:
+  eureka:
     image: case-study-microservices/eureka-service
-    mem_limit: 512m
 
-  gateway-service:
+  gateway:
     image: case-study-microservices/gateway-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     ports:
       - "8443:8443"
+    depends_on:
+      authorization-server:
+        condition: service_started
+
+  authorization-server:
+    image: case-study-microservices/authorization-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
 
   mongodb:
     image: mongo:4.4.2
-    mem_limit: 512m
     ports:
       - "27017:27017"
     command: mongod
@@ -101,7 +102,6 @@ services:
 
   postgresql:
     image: postgres:14.0
-    mem_limit: 512m
     ports:
       - "5432:5432"
     environment:
@@ -117,7 +117,6 @@ services:
 
   kafka:
     image: wurstmeister/kafka:latest
-    mem_limit: 512m
     ports:
       - "9092:9092"
     environment:
@@ -129,7 +128,6 @@ services:
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
-    mem_limit: 512m
     ports:
       - "2181:2181"
     environment:

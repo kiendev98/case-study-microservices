@@ -28,13 +28,18 @@ private val LOG = logWithClass<MessagingTests>()
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["spring.main.allow-bean-definition-overriding=true"]
+    classes = [TestSecurityConfig::class],
+    properties = [
+        "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
+        "spring.main.allow-bean-definition-overriding=true",
+        "eureka.client.enabled=false"
+    ]
 )
 @Import(value = [TestChannelBinderConfiguration::class])
 class MessagingTests(
     @Autowired private val target: OutputDestination,
     @Autowired private val client: WebTestClient
-) : EventBaseTests() {
+)  {
 
     @BeforeEach
     fun setUp() {
@@ -44,7 +49,7 @@ class MessagingTests(
     }
 
     @Test
-    internal fun `Verify creating composite product_1`() {
+    internal fun `Verify creating composite product 1`() {
         val composite = ProductAggregate(1, "name", 1)
         postAndVerifyProduct(composite, HttpStatus.ACCEPTED)
 
@@ -59,6 +64,7 @@ class MessagingTests(
             composite.productId,
             Product(composite.productId, composite.name, composite.weight)
         )
+
 
         expectedEvent.withoutCreatedAt() shouldEqualJson productMessages.first().withoutCreatedAt()
 
@@ -160,7 +166,7 @@ class MessagingTests(
         getMessages(bindingName)
     }
 
-    private fun getMessages(bindingName: String): List<String> {
+    private fun getMessages(bindingName: String): List<EventJsonString> {
         val messages = mutableListOf<String>()
 
         var anyMoreMessages = true
