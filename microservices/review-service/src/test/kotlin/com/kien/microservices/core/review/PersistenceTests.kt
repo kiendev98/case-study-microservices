@@ -15,7 +15,12 @@ import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
-@DataJpaTest
+@DataJpaTest(
+    properties = [
+        "spring.jpa.hibernate.ddl-auto=update",
+        "spring.cloud.config.enabled=false"
+    ]
+)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 internal class PersistenceTests(

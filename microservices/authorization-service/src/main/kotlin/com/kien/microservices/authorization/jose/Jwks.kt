@@ -1,4 +1,4 @@
-package com.kien.microservices.authorizationservice.jose
+package com.kien.microservices.authorization.jose
 
 import com.nimbusds.jose.jwk.RSAKey
 import java.security.interfaces.RSAPrivateKey

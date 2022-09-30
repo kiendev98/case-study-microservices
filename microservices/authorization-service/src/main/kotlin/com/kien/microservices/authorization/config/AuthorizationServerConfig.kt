@@ -1,6 +1,6 @@
-package com.kien.microservices.authorizationservice.config
+package com.kien.microservices.authorization.config
 
-import com.kien.microservices.authorizationservice.jose.generateRsa
+import com.kien.microservices.authorization.jose.generateRsa
 import com.kien.util.logs.logWithClass
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jose.jwk.source.JWKSource

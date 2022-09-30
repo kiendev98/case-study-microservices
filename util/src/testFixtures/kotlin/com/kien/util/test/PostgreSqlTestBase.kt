@@ -15,7 +15,7 @@ abstract class PostgreSqlTestBase {
 
         @JvmStatic
         @DynamicPropertySource
-        fun databaseProperties(registry: DynamicPropertyRegistry) {
+        fun setProperties(registry: DynamicPropertyRegistry) {
             registry.add("spring.datasource.url") { database.jdbcUrl }
             registry.add("spring.datasource.username") { database.username }
             registry.add("spring.datasource.password") { database.password }

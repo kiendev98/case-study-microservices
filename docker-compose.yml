@@ -4,17 +4,9 @@ services:
   product:
     image: case-study-microservices/product-service
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  product-p1:
-    image: case-study-microservices/product-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -24,17 +16,9 @@ services:
   recommendation:
     image: case-study-microservices/recommendation-service
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  recommendation-p1:
-    image: case-study-microservices/recommendation-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -44,17 +28,9 @@ services:
   review:
     image: case-study-microservices/review-service
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
-    depends_on:
-      postgresql:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  review-p1:
-    image: case-study-microservices/review-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       postgresql:
         condition: service_healthy
@@ -64,30 +40,52 @@ services:
   product-composite:
     image: case-study-microservices/product-composite-service
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       rabbitmq:
         condition: service_healthy
       authorization-server:
         condition: service_started
 
+  eureka:
+    image: case-study-microservices/eureka-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+
   gateway:
     image: case-study-microservices/gateway-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+    volumes:
+      - $PWD/keystore:/keystore
     ports:
-      - "8443:8443"
+    - "8443:8443"
     depends_on:
       authorization-server:
-        condition: service_started
-
-  eureka:
-    image: case-study-microservices/eureka-service
+         condition: service_started
 
   authorization-server:
     image: case-study-microservices/authorization-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+
+  config-server:
+    image: case-study-microservices/configuration-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,native
+      - ENCRYPT_KEY=${CONFIG_SERVER_ENCRYPT_KEY}
+      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
+      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
 
   mongodb:
     image: mongo:4.4.2
@@ -117,8 +115,8 @@ services:
   rabbitmq:
     image: rabbitmq:3.8.11-management
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 2s

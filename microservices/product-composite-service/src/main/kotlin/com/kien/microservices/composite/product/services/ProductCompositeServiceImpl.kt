@@ -7,13 +7,11 @@ import com.kien.api.core.review.Review
 import com.kien.util.http.ServiceUtil
 import com.kien.util.logs.logWithClass
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
-import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import java.net.URL
 import java.util.logging.Level
 
 private val LOG = logWithClass<ProductCompositeServiceImpl>()
@@ -30,7 +28,7 @@ class ProductCompositeServiceImpl(
     private final val nullSecurityContext = SecurityContextImpl()
 
     @Suppress("UNCHECKED_CAST")
-    override fun getProduct(productId: Int): Mono<ProductAggregate> {
+    override fun getProduct(productId: Int, delay: Int, faultPercent: Int): Mono<ProductAggregate> {
         LOG.info("Will get composite product info for product.id={}", productId)
         return Mono.zip(
             {
@@ -42,7 +40,7 @@ class ProductCompositeServiceImpl(
                 )
             },
             logAuthorizationInfo(),
-            integration.getProduct(productId),
+            integration.getProduct(productId, delay, faultPercent),
             integration.getRecommendations(productId).collectList(),
             integration.getReviews(productId).collectList(),
         )

@@ -4,11 +4,11 @@ import com.kien.util.logs.logWithClass
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
+val LOG = logWithClass<ReviewServiceApplication>()
 
 @SpringBootApplication(scanBasePackages = ["com.kien"])
 class ReviewServiceApplication
 
-val LOG = logWithClass<ReviewServiceApplication>()
 
 fun main(args: Array<String>) {
     val ctx = runApplication<ReviewServiceApplication>(*args)

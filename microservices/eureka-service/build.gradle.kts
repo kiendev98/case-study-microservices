@@ -39,6 +39,8 @@ dependencies {
     // Spring
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.retry:spring-retry")
 
     // Test
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")

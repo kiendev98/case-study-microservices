@@ -21,12 +21,12 @@ import java.util.function.Consumer
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
-        "spring.cloud.stream.defaultBinder=rabbit",
-        "logging.level.com.kien=DEBUG",
-        "eureka.client.enabled=false"
+        "eureka.client.enabled=false",
+        "spring.jpa.hibernate.ddl-auto=update",
+        "spring.cloud.config.enabled=false"
     ]
 )
-class ReviewServiceApplicationTests(
+internal class ReviewServiceApplicationTests(
     @Autowired private val client: WebTestClient,
     @Autowired private val repository: ReviewRepository,
     @Autowired @Qualifier("messageProcessor")
@@ -34,12 +34,12 @@ class ReviewServiceApplicationTests(
 ) : PostgreSqlTestBase() {
 
     @BeforeEach
-    fun setupDb() {
+    internal fun setupDb() {
         repository.deleteAll()
     }
 
     @Test
-    fun `should return with product id`() {
+    internal fun `should return with product id`() {
 
         val productId = 1
 
@@ -60,7 +60,7 @@ class ReviewServiceApplicationTests(
     }
 
     @Test
-    fun `should return error when saving duplicated review`() {
+    internal fun `should return error when saving duplicated review`() {
         val productId = 1
         val reviewId = 1
 
@@ -79,7 +79,7 @@ class ReviewServiceApplicationTests(
     }
 
     @Test
-    fun `should delete review`() {
+    internal fun `should delete review`() {
         val productId = 1
         val reviewId = 1
 
@@ -95,7 +95,7 @@ class ReviewServiceApplicationTests(
     }
 
     @Test
-    fun `should return error message when parameters are missing`() {
+    internal fun `should return error message when parameters are missing`() {
         getReview("")
             .expectStatus().isBadRequest
             .expectBody()
@@ -104,7 +104,7 @@ class ReviewServiceApplicationTests(
     }
 
     @Test
-    fun `should return error message when parameters are invalid`() {
+    internal fun `should return error message when parameters are invalid`() {
         getReview("?productId=no-integer")
             .expectStatus().isBadRequest
             .expectBody()
@@ -113,7 +113,7 @@ class ReviewServiceApplicationTests(
     }
 
     @Test
-    fun `should return empty list when not found any reviews`() {
+    internal fun `should return empty list when not found any reviews`() {
         getReview("?productId=213")
             .expectStatus().isOk
             .expectBody()
@@ -121,7 +121,7 @@ class ReviewServiceApplicationTests(
     }
 
     @Test
-    fun `should return error message when parameters are negative`() {
+    internal fun `should return error message when parameters are negative`() {
         val productIdInvalid = -1
         getReview("?productId=$productIdInvalid")
             .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)

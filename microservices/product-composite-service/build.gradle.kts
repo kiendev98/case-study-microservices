@@ -17,10 +17,26 @@ val kotestVersion: String by project
 val mockkVersion: String by project
 val springMockkVersion: String by project
 val springDocOpenApiVersion: String by project
+val resilience4jVersion: String by project
 
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    }
+
+    // Avoid Spring Cloud overriding the version of resilience4j
+    dependencies {
+        dependency("io.github.resilience4j:resilience4j-spring:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-annotations:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-consumer:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-core:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-circuitbreaker:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-ratelimiter:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-retry:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-bulkhead:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-timelimiter:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-micrometer:$resilience4jVersion")
+        dependency("io.github.resilience4j:resilience4j-circularbuffer:$resilience4jVersion")
     }
 }
 
@@ -46,16 +62,23 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-webflux-ui:$springDocOpenApiVersion")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
     // Spring cloud
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
+    implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.retry:spring-retry")
 
     // Spring security
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.security:spring-security-oauth2-resource-server")
     implementation("org.springframework.security:spring-security-oauth2-jose")
+
+    // Resilience4j
+    implementation("io.github.resilience4j:resilience4j-spring-boot2:$resilience4jVersion")
+    implementation("io.github.resilience4j:resilience4j-reactor:$resilience4jVersion")
 
     // Test
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")

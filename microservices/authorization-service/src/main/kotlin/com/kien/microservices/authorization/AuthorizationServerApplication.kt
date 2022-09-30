@@ -1,4 +1,4 @@
-package com.kien.microservices.authorizationservice
+package com.kien.microservices.authorization
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

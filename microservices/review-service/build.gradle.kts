@@ -50,8 +50,11 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
+    implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.retry:spring-retry")
 
     // Test
+    implementation(platform("org.testcontainers:testcontainers-bom:$testContainerVersion"))
     testImplementation(testFixtures(project(":util")))
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -63,7 +66,6 @@ dependencies {
         exclude(module = "junit-vintage-engine")
     }
     testImplementation("io.projectreactor:reactor-test")
-    implementation(platform("org.testcontainers:testcontainers-bom:$testContainerVersion"))
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")

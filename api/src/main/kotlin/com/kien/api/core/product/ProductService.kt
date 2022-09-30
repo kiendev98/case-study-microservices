@@ -17,9 +17,14 @@ interface ProductService {
         value = ["/product/{productId}"],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun getProduct(@PathVariable productId: Int): Mono<Product>
+    fun getProduct(
+        @PathVariable productId: Int,
+        @RequestParam(value = "delay", required = false, defaultValue = "0") delay: Int,
+        @RequestParam(value = "faultPercent", required = false, defaultValue = "0") faultPercent: Int
+    ): Mono<Product>
 
 
     fun createProduct(@RequestBody body: Product): Mono<Product>
+
     fun deleteProduct(@PathVariable productId: Int): Mono<Void>
 }

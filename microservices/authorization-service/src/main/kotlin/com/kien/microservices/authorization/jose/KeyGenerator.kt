@@ -1,4 +1,4 @@
-package com.kien.microservices.authorizationservice.jose
+package com.kien.microservices.authorization.jose
 
 import java.math.BigInteger
 import java.security.KeyPair

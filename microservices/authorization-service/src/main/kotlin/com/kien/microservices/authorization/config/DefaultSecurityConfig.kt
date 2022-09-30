@@ -1,4 +1,4 @@
-package com.kien.microservices.authorizationservice.config
+package com.kien.microservices.authorization.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.core.annotation.Order

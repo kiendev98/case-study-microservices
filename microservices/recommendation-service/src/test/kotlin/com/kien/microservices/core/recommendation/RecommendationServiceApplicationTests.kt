@@ -22,14 +22,14 @@ import java.util.function.Consumer
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
-        "eureka.client.enabled=false"
+        "eureka.client.enabled=false",
+        "spring.cloud.config.enabled=false"
     ]
 )
 class RecommendationServiceApplicationTests(
     @Autowired private val client: WebTestClient,
     @Autowired private val repository: RecommendationRepository,
-    @Autowired
-    @Qualifier("messageProcessor")
+    @Autowired @Qualifier("messageProcessor")
     private val messageProcessor: Consumer<Event<Int, Recommendation>>
 ) : MongoDbTestBase() {
 
