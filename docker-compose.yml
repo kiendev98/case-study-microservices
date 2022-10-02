@@ -122,3 +122,14 @@ services:
       interval: 2s
       timeout: 2s
       retries: 60
+
+  zipkin:
+    image: openzipkin/zipkin:2.23.2
+    environment:
+      - STORAGE_TYPE=mem
+      - RABBIT_ADDRESS=rabbitmq
+    ports:
+      - "9411:9411"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

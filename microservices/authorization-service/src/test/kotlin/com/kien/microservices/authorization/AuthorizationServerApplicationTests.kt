@@ -17,7 +17,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
     webEnvironment = WebEnvironment.RANDOM_PORT,
     properties = [
         "eureka.client.enabled=false",
-        "spring.cloud.config.enabled=false"
+        "spring.cloud.config.enabled=false",
+        "spring.cloud.stream.defaultBinder=rabbit"
     ]
 )
 @AutoConfigureMockMvc

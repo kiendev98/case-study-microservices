@@ -66,6 +66,8 @@ spring.cloud.gateway.routes:
 
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.authorization-server}:9999
 
+spring.sleuth.reactor.instrumentation-type: decorate-on-last
+
 logging:
   level:
     root: INFO

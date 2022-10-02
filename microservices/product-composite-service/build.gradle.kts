@@ -61,15 +61,21 @@ dependencies {
     // Spring boot
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springdoc:springdoc-openapi-webflux-ui:$springDocOpenApiVersion")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+
+    // Springdoc
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:$springDocOpenApiVersion")
+
+    // Retry
+    implementation("org.springframework.retry:spring-retry")
 
     // Spring cloud
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.retry:spring-retry")
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
+    implementation("org.springframework.cloud:spring-cloud-sleuth-zipkin")
 
     // Spring security
     implementation("org.springframework.boot:spring-boot-starter-security")

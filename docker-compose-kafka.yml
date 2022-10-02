@@ -165,3 +165,13 @@ services:
       - "2181:2181"
     environment:
       - KAFKA_ADVERTISED_HOST_NAME=zookeeper
+
+  zipkin:
+    image: openzipkin/zipkin:2.23.2
+    environment:
+      - STORAGE_TYPE=mem
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    ports:
+      - "9411:9411"
+    depends_on:
+      - kafka

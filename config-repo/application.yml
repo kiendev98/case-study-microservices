@@ -19,13 +19,15 @@ spring.rabbitmq:
   port: 5672
   username: guest
   password: guest
-#TODO: investigate how to descrypt this password
 
 spring.cloud.stream.kafka.binder:
   brokers: 127.0.0.1
   defaultBrokerPort: 9092
 
 spring.cloud.stream.defaultBinder: rabbit
+
+spring.zipkin.sender.type: rabbit
+spring.sleuth.sampler.probability: 1.0
 
 # WARNING: Exposing all management endpoints over http should only be used during development, must be locked down in production!
 management.endpoint.health.show-details: "ALWAYS"
@@ -44,6 +46,7 @@ app:
 
 ---
 spring.config.activate.on-profile: kafka
+spring.zipkin.sender.type: kafka
 
 management.health.rabbit.enabled: false
 spring.cloud.stream.defaultBinder: kafka

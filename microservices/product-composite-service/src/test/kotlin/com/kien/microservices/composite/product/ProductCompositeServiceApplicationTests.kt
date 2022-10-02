@@ -8,7 +8,6 @@ import com.kien.api.exceptions.NotFoundException
 import com.kien.microservices.composite.product.services.ProductCompositeIntegration
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,7 +42,7 @@ class ProductCompositeServiceApplicationTests(
 
     @BeforeEach
     fun setUp() {
-        every { compositeIntegration.getProduct(PRODUCT_ID_OK) } returns
+        every { compositeIntegration.getProduct(PRODUCT_ID_OK, any(), any()) } returns
                 Product(
                     PRODUCT_ID_OK,
                     "name",
@@ -75,10 +74,10 @@ class ProductCompositeServiceApplicationTests(
                     )
                 ).toFlux()
 
-        every { compositeIntegration.getProduct(PRODUCT_ID_NOT_FOUND) } throws
+        every { compositeIntegration.getProduct(PRODUCT_ID_NOT_FOUND, any(), any()) } throws
                 NotFoundException("NOT FOUND: $PRODUCT_ID_NOT_FOUND")
 
-        every { compositeIntegration.getProduct(PRODUCT_ID_INVALID) } throws
+        every { compositeIntegration.getProduct(PRODUCT_ID_INVALID, any(), any()) } throws
                 InvalidInputException("INVALID: $PRODUCT_ID_INVALID")
     }
 

@@ -13,7 +13,10 @@ import org.springframework.http.HttpStatus
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
-        "spring.cloud.config.enabled=false"
+        "spring.cloud.config.enabled=false",
+        "management.health.rabbit.enabled=false",
+        "eureka.client.enabled=false",
+        "spring.cloud.stream.defaultBinder=rabbit"
     ]
 )
 class EurekaServerApplicationTests(
@@ -41,20 +44,6 @@ class EurekaServerApplicationTests(
         val entity = testRestTemplate.withBasicAuth(username, password)
             .getForEntity("/eureka/apps", String::class.java)
 
-        entity.statusCode shouldBe HttpStatus.OK
-        entity.body shouldMatchJson expectedResponseBody
-    }
-
-    @Test
-    fun healthy() {
-        val expectedResponseBody = """
-            {
-                "status": "UP"
-            }
-        """
-        val entity = testRestTemplate
-            .withBasicAuth(username, password)
-            .getForEntity("/actuator/health", String::class.java)
         entity.statusCode shouldBe HttpStatus.OK
         entity.body shouldMatchJson expectedResponseBody
     }
