@@ -41,7 +41,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Spring Cloud
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
     implementation("org.springframework.cloud:spring-cloud-sleuth-zipkin")

@@ -82,7 +82,7 @@ services:
     depends_on:
       kafka:
         condition: service_started
-      authorization-server:
+      auth-server:
         condition: service_started
 
   eureka:
@@ -101,10 +101,10 @@ services:
     ports:
       - "8443:8443"
     depends_on:
-      authorization-server:
+      auth-server:
         condition: service_started
 
-  authorization-server:
+  auth-server:
     image: case-study-microservices/authorization-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker

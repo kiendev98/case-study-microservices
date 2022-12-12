@@ -22,7 +22,6 @@ import java.util.function.Consumer
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
-        "eureka.client.enabled=false",
         "spring.cloud.config.enabled=false"
     ]
 )

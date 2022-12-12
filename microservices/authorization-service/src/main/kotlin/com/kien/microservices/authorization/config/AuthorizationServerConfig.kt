@@ -94,7 +94,6 @@ class AuthorizationServerConfig {
     @Bean
     fun providerSettings(): ProviderSettings =
         ProviderSettings.builder()
-            //TODO: make it runnable in local
-            .issuer("http://authorization-server:9999")
+            .issuer("http://authorization:9999")
             .build()
 }

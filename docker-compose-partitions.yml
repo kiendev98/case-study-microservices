@@ -82,7 +82,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-      authorization-server:
+      auth-server:
         condition: service_started
 
   gateway:
@@ -94,7 +94,7 @@ services:
     ports:
       - "8443:8443"
     depends_on:
-      authorization-server:
+      auth-server:
         condition: service_started
 
   eureka:
@@ -104,7 +104,7 @@ services:
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
 
-  authorization-server:
+  auth-server:
     image: case-study-microservices/authorization-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker

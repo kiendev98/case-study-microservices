@@ -1,7 +1,7 @@
 spring.config.import: "configserver:"
 
 spring:
-  application.name: authorization-server
+  application.name: authorization
   cloud.config:
     failFast: true
     retry:
@@ -16,4 +16,4 @@ spring:
 ---
 spring.config.activate.on-profile: docker
 
-spring.cloud.config.uri: http://config-server:8888
+spring.cloud.config.uri: http://configuration:8888

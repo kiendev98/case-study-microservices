@@ -13,7 +13,6 @@ class SecurityConfig {
             .csrf().disable()
             .authorizeExchange()
             .pathMatchers("/actuator/**").permitAll()
-            .pathMatchers("/eureka/**").permitAll()
             .pathMatchers("/oauth2/**").permitAll()
             .pathMatchers("/login/**").permitAll()
             .pathMatchers("/error/**").permitAll()

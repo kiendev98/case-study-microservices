@@ -29,7 +29,6 @@ private const val PRODUCT_ID_INVALID = 3
     properties = [
         "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
         "spring.main.allow-bean-definition-overriding=true",
-        "eureka.client.enabled=false",
         "spring.cloud.config.enabled=false"
     ]
 )

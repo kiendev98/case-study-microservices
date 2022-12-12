@@ -1,0 +1,34 @@
+fullnameOverride: configuration
+
+image:
+  name: configuration-service
+
+ports:
+  - name:
+    containerPort: 8888
+    protocol: TCP
+
+env:
+  SPRING_PROFILES_ACTIVE: "docker,native"
+
+livenessProbe_enabled: true
+livenessProbe:
+  httpGet:
+    port: 8888
+
+readinessProbe_enabled: true
+readinessProbe:
+  httpGet:
+    port: 8888
+
+configmap:
+  enabled: true
+  volumeMounts:
+    mountPath: /config-repo
+
+service:
+  ports:
+    - port: 8888
+      targetPort: http
+      protocol: TCP
+      name: http
