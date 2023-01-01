@@ -1,0 +1,22 @@
+rootProject.name = "case-study-microservices"
+
+include "docker"
+include "api"
+include "util"
+include "microservices:configuration"
+include "microservices:authorization"
+include "microservices:gateway"
+include "microservices:product"
+include "microservices:review"
+include "microservices:recommendation"
+include "microservices:product-composite"
+
+enableFeaturePreview('VERSION_CATALOGS')
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        plugins {
+
+        }
+    }
+}

@@ -1,7 +1,7 @@
 fullnameOverride: product-composite
 
 image:
-  name: product-composite-service
+  name: product-composite
 
 env:
   SPRING_PROFILES_ACTIVE: "docker"

@@ -1,7 +1,7 @@
 fullnameOverride: review
 
 image:
-  name: review-service
+  name: review
 
 env:
   SPRING_PROFILES_ACTIVE: "docker"

@@ -1,6 +1,6 @@
 apiVersion: v2
-name: auth-server
-description: A Helm chart for Auth Server
+name: authorization
+description: A Helm chart for Authorization Server
 type: application
 version: 1.0.0
 appVersion: "1.0"

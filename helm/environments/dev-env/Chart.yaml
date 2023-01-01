@@ -17,9 +17,9 @@ dependencies:
     version: 1.0.0
     repository: file://../../components/mongodb
 
-  - name: mysql
+  - name: postgresql
     version: 1.0.0
-    repository: file://../../components/mysql
+    repository: file://../../components/postgresql
 
   - name: configuration
     version: 1.0.0
@@ -29,7 +29,7 @@ dependencies:
     version: 1.0.0
     repository: file://../../components/gateway
 
-  - name: auth-server
+  - name: authorization
     version: 1.0.0
     repository: file://../../components/authorization
 

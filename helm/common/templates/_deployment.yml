@@ -2,7 +2,7 @@
 {{- $common := dict "Values" .Values.common -}}
 {{- $noCommon := omit .Values "common" -}}
 {{- $overrides := dict "Values" $noCommon -}}
-{{- $noValue := omit . "Values" }}
+{{- $noValue := omit . "Values" -}}
 {{- with merge $noValue $overrides $common -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -10,10 +10,11 @@ metadata:
   name: {{ include "common.fullname" . }}
   labels:
     app.kubernetes.io/name: {{ include "common.name" . }}
-    helm.sh/chart: {{ include "common.chart" .}}
+    helm.sh/chart: {{ include "common.chart" . }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 
 spec:
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "common.name" . }}
@@ -55,28 +56,28 @@ spec:
           # Liveness Probe
           {{- if .Values.livenessProbe_enabled  }}
           livenessProbe:
-            {{ toYaml .Values.livenessProbe | indent 12 }}
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           {{- end }}
 
           # Readiness Probe
           {{- if.Values.readnessProbe_enabled }}
           readinessProbe:
-            {{ toYaml .Values.readinessProbe | indent 12 }}
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- end }}
 
           # Ports
           ports:
-            {{ toYaml .Values.ports | indent 12 }}
+            {{- toYaml .Values.ports | nindent 12 }}
 
           # Resources
           resources:
-            {{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
 
       # Configmap
       {{- if .Values.configmap.enabled  }}
           volumeMounts:
             - mountPath: {{ .Values.configmap.volumeMounts.mountPath }}
-              name: {{ include "common.fullname" .}}
+              name: {{ include "common.fullname" . }}
       volumes:
         - name: {{ include "common.fullname" . }}
           configMap:

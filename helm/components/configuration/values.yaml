@@ -1,10 +1,10 @@
 fullnameOverride: configuration
 
 image:
-  name: configuration-service
+  name: configuration
 
 ports:
-  - name:
+  - name: http
     containerPort: 8888
     protocol: TCP
 

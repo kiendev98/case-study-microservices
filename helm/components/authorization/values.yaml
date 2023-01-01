@@ -1,7 +1,7 @@
 fullnameOverride: authorization
 
 image:
-  name: authorization-service
+  name: authorization
 
 env:
   SPRING_PROFILES_ACTIVE: "docker"

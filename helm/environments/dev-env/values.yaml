@@ -8,14 +8,13 @@ secrets:
     CONFIG_SERVER_USR: dev-usr
     CONFIG_SERVER_PWD: dev-pwd
 
-mysql:
+postgresql:
   env:
-    MYSQL_ROOT_PASSWORD: rootpwd
-    MYSQL_DATABASE: review_db
-    MYSQL_USER: user
-    MYSQL_PASSWORD: pwd
+    POSTGRES_DB: review_db
+    POSTGRES_USER: user
+    POSTGRES_PASSWORD: pwd
 
-config-server:
+configuration:
   envFromSecretRefs:
     - config-server-secrets
 
@@ -23,7 +22,7 @@ gateway:
   envFromSecretRefs:
     - config-client-credentials
 
-auth-server:
+authorization:
   envFromSecretRefs:
     - config-client-credentials
 
