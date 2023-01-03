@@ -1,22 +1,145 @@
 rootProject.name = "case-study-microservices"
 
-include "docker"
 include "api"
 include "util"
-include "microservices:configuration"
 include "microservices:authorization"
+include "microservices:configuration"
 include "microservices:gateway"
 include "microservices:product"
-include "microservices:review"
-include "microservices:recommendation"
 include "microservices:product-composite"
+//include "microservices:recommendation"
+//include "microservices:review"
 
 enableFeaturePreview('VERSION_CATALOGS')
 
 dependencyResolutionManagement {
     versionCatalogs {
-        plugins {
+        String kotlinVersion = "1.7.22"
+        String springbootVersion = "2.7.6"
 
+        gradleBuild {
+            version("kotlin", kotlinVersion)
+            version("spring-boot", springbootVersion)
+            version("kotlinter", "3.10.0")
+            version("dependency-management", "1.0.11.RELEASE")
+            version("docker-compose", "0.14.9")
+
+            plugin("kotlin-jvm", "org.jetbrains.kotlin.jvm").versionRef("kotlin")
+            plugin("kotlin-spring", "org.jetbrains.kotlin.plugin.spring").versionRef("kotlin")
+            plugin("kotlinter", "org.jmailen.kotlinter").versionRef("kotlinter")
+            plugin("kotlin-jpa", "org.jetbrains.kotlin.plugin.jpa").versionRef("kotlin")
+
+            plugin("spring-boot", "org.springframework.boot").versionRef("spring-boot")
+            plugin("spring-dependency-management", "io.spring.dependency-management").versionRef("dependency-management")
+
+            plugin("docker-compose", "com.avast.gradle.docker-compose").versionRef("docker-compose")
+        }
+
+        boms {
+            version("spring-boot", springbootVersion)
+            version("spring-cloud", "2021.0.4")
+
+            library("spring-boot-dependencies", "org.springframework.boot", "spring-boot-dependencies").versionRef("spring-boot")
+            library("spring-cloud-dependencies", "org.springframework.cloud", "spring-cloud-dependencies").versionRef("spring-cloud")
+        }
+
+        libs {
+            version("kotlin", kotlinVersion)
+            version("kotlin-coroutines", "1.6.2") // TODO: migrate to kotlin coroutines
+            version("spring-openapi", "1.5.12")
+            version("resilience4j", "1.7.1")
+            version("authorizaiton-server-version", "0.3.1")
+
+            library("openapi-webflux-ui", "org.springdoc", "springdoc-openapi-webflux-ui").versionRef("spring-openapi")
+            library("openapi-common", "org.springdoc", "springdoc-openapi-common").versionRef("spring-openapi")
+
+            library("jackson-kotlin", "com.fasterxml.jackson.module", "jackson-module-kotlin").withoutVersion()
+            library("kotlin-stdlib", "org.jetbrains.kotlin", "kotlin-stdlib-jdk8").versionRef("kotlin")
+            library("kotlin-reflect", "org.jetbrains.kotlin", "kotlin-reflect").versionRef("kotlin")
+            library("kotlin-coroutines", "org.jetbrains.kotlinx", "kotlinx-coroutines-core").versionRef("kotlin-coroutines")
+            library("kotlin-coroutines-reactor", "org.jetbrains.kotlinx", "kotlinx-coroutines-reactor").versionRef("kotlin-coroutines")
+
+            library("spring-boot-webflux", "org.springframework.boot", "spring-boot-starter-webflux").withoutVersion()
+            library("spring-boot-actuator", "org.springframework.boot", "spring-boot-starter-actuator").withoutVersion()
+            library("spring-boot-aop", "org.springframework.boot", "spring-boot-starter-aop").withoutVersion()
+            library("spring-boot-security", "org.springframework.boot", "spring-boot-starter-security").withoutVersion()
+            library("spring-boot-data-mongodb-reactive", "org.springframework.boot", "spring-boot-starter-data-mongodb-reactive").withoutVersion()
+            library("spring-retry", "org.springframework.retry", "spring-retry").withoutVersion()
+
+
+            library("spring-cloud-stream-rabbit", "org.springframework.cloud", "spring-cloud-starter-stream-rabbit").withoutVersion()
+            library("spring-cloud-stream-kafka", "org.springframework.cloud", "spring-cloud-starter-stream-kafka").withoutVersion()
+            library("spring-cloud-sleuth", "org.springframework.cloud", "spring-cloud-starter-sleuth").withoutVersion()
+            library("spring-cloud-sleuth-zipkin", "org.springframework.cloud", "spring-cloud-sleuth-zipkin").withoutVersion()
+            library("spring-cloud-config", "org.springframework.cloud", "spring-cloud-starter-config").withoutVersion()
+            library("spring-cloud-config-server", "org.springframework.cloud", "spring-cloud-config-server").withoutVersion()
+
+            library("spring-security-oauth2-resource-server", "org.springframework.security", "spring-security-oauth2-resource-server").withoutVersion()
+            library("spring-security-oauth2-jose", "org.springframework.security", "spring-security-oauth2-jose").withoutVersion()
+            library("spring-security-oauth2-authorization-server", "org.springframework.security", "spring-security-oauth2-authorization-server").versionRef("authorizaiton-server-version")
+
+            library("resilience4j-spring-boot2", "io.github.resilience4j", "resilience4j-spring-boot2").versionRef("resilience4j")
+            library("resilience4j-reactor", "io.github.resilience4j", "resilience4j-reactor").versionRef("resilience4j")
+
+            library("reactor-kotlin-extensions", "io.projectreactor.kotlin", "reactor-kotlin-extensions").withoutVersion()
+
+            bundle("spring-web-flux", ["spring-boot-webflux", "spring-boot-actuator"])
+            bundle("resource-server", ["spring-security-oauth2-resource-server", "spring-security-oauth2-jose"])
+            bundle("kotlin", ["kotlin-stdlib", "kotlin-reflect"])
+
+            bundle(
+                    "spring-cloud-base",
+                    [
+                            "spring-cloud-stream-rabbit",
+                            "spring-cloud-stream-kafka",
+                            "spring-cloud-config",
+                            "spring-cloud-sleuth",
+                            "spring-cloud-sleuth-zipkin"
+                    ]
+            )
+
+            bundle(
+                    "resilience4j",
+                    [
+                            "resilience4j-spring-boot2",
+                            "resilience4j-reactor"
+                    ]
+            )
+        }
+
+        testLibs {
+            version("testcontainers", "1.17.2")
+            version("kotest", "4.6.3")
+            version("mockk", "1.12.4")
+            version("springmockk", "3.1.1")
+
+            library("junit5", "org.junit.jupiter", "junit-jupiter").withoutVersion()
+            library("kotest-assertions-core", "io.kotest", "kotest-assertions-core").versionRef("kotest")
+            library("kotest-assertions-json", "io.kotest", "kotest-assertions-json").versionRef("kotest")
+
+            library("mockk", "io.mockk", "mockk").versionRef("mockk")
+            library("springmockk", "com.ninja-squad", "springmockk").versionRef("springmockk")
+            library("spring-boot-test", "org.springframework.boot", "spring-boot-starter-test").withoutVersion()
+            library("spring-security-test", "org.springframework.security", "spring-security-test").withoutVersion()
+            library("testcontainers", "org.testcontainers", "testcontainers").versionRef("testcontainers")
+            library("testcontainers-junit", "org.testcontainers", "junit-jupiter").versionRef("testcontainers")
+            library("reactor-test", "io.projectreactor", "reactor-test").withoutVersion()
+
+            //TODO: replace junit5 with kotest platform
+            bundle(
+                    "test",
+                    [
+                            "spring-boot-test",
+                            "spring-security-test",
+                            "mockk",
+                            "springmockk",
+                            "kotest-assertions-core",
+                            "kotest-assertions-json",
+                            "reactor-test"
+                    ]
+            )
+
+            bundle("testcontainers", [ "testcontainers", "testcontainers-junit"])
         }
     }
 }

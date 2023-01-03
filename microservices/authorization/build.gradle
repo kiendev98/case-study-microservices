@@ -1,0 +1,26 @@
+plugins {
+    alias(gradleBuild.plugins.kotlin.spring)
+    alias(gradleBuild.plugins.spring.boot)
+    alias(gradleBuild.plugins.spring.dependency.management)
+}
+
+dependencies {
+    implementation libs.bundles.kotlin
+    implementation libs.jackson.kotlin
+
+    implementation libs.bundles.spring.web.flux
+
+    implementation platform(boms.spring.cloud.dependencies)
+    implementation libs.bundles.spring.cloud.base
+
+    implementation libs.spring.security.oauth2.authorization.server
+
+    implementation project(":util")
+
+    testImplementation testLibs.bundles.test
+}
+
+jar {
+    enabled = false
+}
+

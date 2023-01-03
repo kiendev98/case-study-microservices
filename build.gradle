@@ -1,0 +1,41 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    alias(gradleBuild.plugins.docker.compose)
+
+    alias(gradleBuild.plugins.kotlinter) apply false
+    alias(gradleBuild.plugins.kotlin.jvm) apply false
+}
+
+subprojects {
+    apply plugin: "org.jetbrains.kotlin.jvm"
+    apply plugin: "org.jmailen.kotlinter"
+
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs = ["-Xjsr305=strict"]
+            jvmTarget = JavaVersion.VERSION_11
+        }
+    }
+
+}
+
+dockerCompose {
+    useComposeFiles = ["docker-compose.yml"]
+
+    infra {
+        startedServices = ["mongodb", "postgresql", "rabbitmq"]
+    }
+
+    partitions {
+        useComposeFiles = ["docker-compose-partitions"]
+    }
+
+    kafka {
+        useComposeFiles = ["docker-compose-kafka.yaml"]
+    }
+}

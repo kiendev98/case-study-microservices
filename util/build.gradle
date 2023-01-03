@@ -1,0 +1,16 @@
+plugins {
+    alias(gradleBuild.plugins.spring.dependency.management)
+    id "java-test-fixtures"
+}
+
+dependencies {
+    implementation libs.bundles.kotlin
+
+    implementation platform(boms.spring.boot.dependencies)
+    implementation libs.spring.boot.webflux
+    implementation project(":api")
+
+    testFixturesImplementation platform(boms.spring.boot.dependencies)
+    testFixturesImplementation testLibs.bundles.test
+    testFixturesImplementation testLibs.bundles.testcontainers
+}
