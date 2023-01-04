@@ -6,7 +6,7 @@ import com.kien.api.event.Event
 import com.kien.api.event.Type
 import org.junit.jupiter.api.Test
 
-class IsSameEventTests  {
+class IsSameEventTests {
 
     @Throws(JsonProcessingException::class)
     @Test
@@ -22,5 +22,4 @@ class IsSameEventTests  {
         event1 isNotSameEventExceptCreated event3
         event1 isNotSameEventExceptCreated event4
     }
-
 }

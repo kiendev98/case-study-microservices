@@ -16,7 +16,7 @@ import java.time.Duration
 import java.util.logging.Level
 import kotlin.random.Random
 
-private val LOG = logWithClass<ProductServiceImpl>()
+private val logger = logWithClass<ProductServiceImpl>()
 
 @RestController
 class ProductServiceImpl(
@@ -30,7 +30,7 @@ class ProductServiceImpl(
         } else {
             body.toEntity()
                 .let { it -> repository.save(it) }
-                .log(LOG.name, Level.FINE)
+                .log(logger.name, Level.FINE)
                 .onErrorMap(DuplicateKeyException::class.java) { InvalidInputException("Duplicate key, Product Id: ${body.productId}") }
                 .map { it.toApi() }
         }
@@ -39,9 +39,9 @@ class ProductServiceImpl(
         if (productId < 1) {
             throw InvalidInputException("Invalid productId: $productId")
         } else {
-            LOG.debug("deleteProduct: tries to delete an entity with productId: {}", productId)
+            logger.debug("deleteProduct: tries to delete an entity with productId: {}", productId)
             repository.findByProductId(productId)
-                .log(LOG.name, Level.FINE)
+                .log(logger.name, Level.FINE)
                 .map { repository.delete(it) }
                 .flatMap { it }
         }
@@ -50,12 +50,12 @@ class ProductServiceImpl(
         if (productId < 1) {
             throw InvalidInputException("Invalid productId: $productId")
         } else {
-            LOG.info("Will get product info for id={}", productId)
+            logger.info("Will get product info for id={}", productId)
             repository.findByProductId(productId)
                 .map { throwErrorIfBadLuc(it, faultPercent) }
                 .delayElement(Duration.ofSeconds(delay.toLong()))
                 .switchIfEmpty(NotFoundException("No product found for productId: $productId").toMono())
-                .log(LOG.name, Level.FINE)
+                .log(logger.name, Level.FINE)
                 .map { it.toApi() }
                 .map {
                     it.serviceAddress = serviceUtil.serviceAddress
@@ -65,15 +65,15 @@ class ProductServiceImpl(
 
     private fun throwErrorIfBadLuc(entity: ProductEntity, faultPercent: Int): ProductEntity {
         if (faultPercent == 0) {
-            return entity;
+            return entity
         }
 
         val randomThreshold = Random.nextInt(1, 100)
 
         if (faultPercent < randomThreshold) {
-            LOG.debug("We got lucky, no error occurred, {} < {}", faultPercent, randomThreshold)
+            logger.debug("We got lucky, no error occurred, {} < {}", faultPercent, randomThreshold)
         } else {
-            LOG.debug("Bad luck, an error occurred, {} >= {}", faultPercent, randomThreshold)
+            logger.debug("Bad luck, an error occurred, {} >= {}", faultPercent, randomThreshold)
             throw RuntimeException("Something went wrong...")
         }
 

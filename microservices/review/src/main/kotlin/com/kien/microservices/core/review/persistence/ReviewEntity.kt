@@ -11,6 +11,7 @@ class ReviewEntity(
     val subject: String,
     val content: String
 ) {
+
     @Id @GeneratedValue
     var id: Int? = null
 

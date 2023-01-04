@@ -4,7 +4,6 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 
-
 abstract class PostgreSqlTestBase {
     companion object {
         private val database = PostgreSQLContainer<Nothing>("postgres:14.0")

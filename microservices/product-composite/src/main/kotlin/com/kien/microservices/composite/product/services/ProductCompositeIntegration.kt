@@ -34,7 +34,7 @@ import java.io.IOException
 import java.util.concurrent.Callable
 import java.util.logging.Level
 
-private val LOG = logWithClass<ProductCompositeIntegration>()
+private val logger = logWithClass<ProductCompositeIntegration>()
 
 @Component
 class ProductCompositeIntegration(
@@ -44,11 +44,11 @@ class ProductCompositeIntegration(
     @Qualifier("publishEventScheduler")
     private val publishEventScheduler: Scheduler,
     private val serviceUtil: ServiceUtil
-    ) : ProductService, RecommendationService, ReviewService {
+) : ProductService, RecommendationService, ReviewService {
 
-    private final val productServiceUrl = "http://product";
-    private final val recommendationServiceUrl = "http://recommendation";
-    private final val reviewServiceUrl = "http://review";
+    private final val productServiceUrl = "http://product"
+    private final val recommendationServiceUrl = "http://recommendation"
+    private final val reviewServiceUrl = "http://review"
     private val webClient = webClient.build()
 
     override fun createRecommendation(body: Recommendation): Mono<Recommendation> =
@@ -80,7 +80,6 @@ class ProductCompositeIntegration(
         }.toMono()
             .subscribeOn(publishEventScheduler)
 
-
     override fun deleteReviews(productId: Int): Mono<Void> =
         Callable {
             sendMessage(
@@ -96,34 +95,38 @@ class ProductCompositeIntegration(
     override fun getProduct(productId: Int, delay: Int, faultPercent: Int): Mono<Product> =
         UriComponentsBuilder.fromUriString("$productServiceUrl/product/{productId}?delay={delay}&faultPercent={faultPercent}")
             .build(productId, delay, faultPercent)
-            .apply { LOG.debug("Will call the getProduct API on URL: {}", this) }
+            .apply { logger.debug("Will call the getProduct API on URL: {}", this) }
             .let {
                 webClient.get()
                     .uri(it)
                     .retrieve()
                     .bodyToMono(Product::class.java)
-                    .log(LOG.name, Level.FINE)
+                    .log(logger.name, Level.FINE)
                     .onErrorMap(WebClientResponseException::class.java) { ex ->
                         handleException(ex)
                     }
             }
 
-    override fun createProduct(body: Product): Mono<Product> =
-        {
-            sendMessage("products-out-0", Event(Type.CREATE, body.productId, body))
-            body
-        }.toMono()
-            .subscribeOn(publishEventScheduler)
+    override fun createProduct(body: Product): Mono<Product> = {
+        sendMessage("products-out-0", Event(Type.CREATE, body.productId, body))
+        body
+    }.toMono()
+        .subscribeOn(publishEventScheduler)
 
-    private fun getProductFallbackValue(productId: Int, delay: Int, faultPercent: Int, ex: CallNotPermittedException): Mono<Product> {
-        LOG.warn(
+    private fun getProductFallbackValue(
+        productId: Int,
+        delay: Int,
+        faultPercent: Int,
+        ex: CallNotPermittedException
+    ): Mono<Product> {
+        logger.warn(
             "Creating a fail-fast fallback product for productId = {}, delay = {}, faultPercent = {} and exception = {} ",
             productId, delay, faultPercent, ex.toString()
         )
 
         if (productId == 13) {
             val errMsg = "Product Id: $productId not found in fallback cache!"
-            LOG.warn(errMsg)
+            logger.warn(errMsg)
             throw NotFoundException(errMsg)
         }
         return Mono.just(
@@ -135,7 +138,7 @@ class ProductCompositeIntegration(
     }
 
     private fun sendMessage(bindingName: String, event: Event<Any, Any>) {
-        LOG.debug("Sending a {} message to {}", event.eventType, bindingName)
+        logger.debug("Sending a {} message to {}", event.eventType, bindingName)
         val message = MessageBuilder.withPayload(event)
             .setHeader("partitionKey", event.key)
             .build()
@@ -144,7 +147,7 @@ class ProductCompositeIntegration(
 
     private fun handleException(ex: Throwable): Throwable {
         if (ex !is WebClientResponseException) {
-            LOG.warn("Got a unexpected error: {}, will rethrow it", ex.toString())
+            logger.warn("Got a unexpected error: {}, will rethrow it", ex.toString())
             return ex
         }
 
@@ -152,8 +155,8 @@ class ProductCompositeIntegration(
             HttpStatus.NOT_FOUND -> NotFoundException(ex.errorMessage)
             HttpStatus.UNPROCESSABLE_ENTITY -> InvalidInputException(ex.errorMessage)
             else -> {
-                LOG.warn("Got an unexpected HTTP error: {}, will rethrow it", ex.statusCode)
-                LOG.warn("Error body: {}", ex.responseBodyAsString)
+                logger.warn("Got an unexpected HTTP error: {}, will rethrow it", ex.statusCode)
+                logger.warn("Error body: {}", ex.responseBodyAsString)
                 ex
             }
         }
@@ -177,25 +180,25 @@ class ProductCompositeIntegration(
 
     override fun getRecommendations(productId: Int): Flux<Recommendation> =
         "$recommendationServiceUrl/recommendation?productId=$productId"
-            .apply { LOG.debug("Will call the getRecommendations API on URL: {}", this) }
+            .apply { logger.debug("Will call the getRecommendations API on URL: {}", this) }
             .let {
                 webClient.get()
                     .uri(it)
                     .retrieve()
                     .bodyToFlux(Recommendation::class.java)
-                    .log(LOG.name, Level.FINE)
+                    .log(logger.name, Level.FINE)
                     .onErrorResume { Flux.empty() }
             }
 
     override fun getReviews(productId: Int): Flux<Review> =
         "$reviewServiceUrl/review?productId=$productId"
-            .apply { LOG.debug("Will call the getReviews API on URL: {}", this) }
+            .apply { logger.debug("Will call the getReviews API on URL: {}", this) }
             .let {
                 webClient.get()
                     .uri(it)
                     .retrieve()
                     .bodyToFlux(Review::class.java)
-                    .log(LOG.name, Level.FINE)
+                    .log(logger.name, Level.FINE)
                     .onErrorResume { Flux.empty() }
             }
 }

@@ -54,7 +54,7 @@ class RecommendationServiceApplicationTests(
             .expectBody()
             .jsonPath("$.length()").isEqualTo(3)
             .jsonPath("$[2].productId").isEqualTo(productId)
-            .jsonPath("$[2].recommendationId").isEqualTo(3);
+            .jsonPath("$[2].recommendationId").isEqualTo(3)
     }
 
     @Test
@@ -114,9 +114,8 @@ class RecommendationServiceApplicationTests(
             .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
             .expectBody()
             .jsonPath("$.path").isEqualTo("/recommendation")
-            .jsonPath("$.message").isEqualTo("Required int parameter 'productId' is not present");
+            .jsonPath("$.message").isEqualTo("Required int parameter 'productId' is not present")
     }
-
 
     @Test
     fun `should return error when not found`() {
@@ -142,7 +141,7 @@ class RecommendationServiceApplicationTests(
 
     private fun getRecommendation(recommendationPath: String): WebTestClient.ResponseSpec =
         client.get()
-            .uri("/recommendation${recommendationPath}")
+            .uri("/recommendation$recommendationPath")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)

@@ -8,7 +8,6 @@ import reactor.core.publisher.Mono
 
 interface ReviewService {
 
-
     /**
      * Sample usage: "curl $HOST:$PORT/review?productId=1".
      *

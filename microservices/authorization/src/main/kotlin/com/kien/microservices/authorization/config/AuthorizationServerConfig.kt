@@ -19,14 +19,14 @@ import org.springframework.security.oauth2.server.authorization.config.TokenSett
 import java.time.Duration
 import java.util.*
 
-val LOG = logWithClass<AuthorizationServerConfig>()
+val logger = logWithClass<AuthorizationServerConfig>()
 
 @Configuration(proxyBeanMethods = false)
 class AuthorizationServerConfig {
 
     @Bean
     fun registeredClientRepository(): RegisteredClientRepository {
-        LOG.info("register OAUth client allowing all grant flows...")
+        logger.info("register OAUth client allowing all grant flows...")
 
         val writerClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("writer")
@@ -84,7 +84,7 @@ class AuthorizationServerConfig {
 
     @Bean
     fun jwkSource(): JWKSource<SecurityContext> {
-        val  rsaKey = generateRsa()
+        val rsaKey = generateRsa()
         val jwkSet = JWKSet(rsaKey)
         return JWKSource { jwkSelector, _ ->
             jwkSelector.select(jwkSet)

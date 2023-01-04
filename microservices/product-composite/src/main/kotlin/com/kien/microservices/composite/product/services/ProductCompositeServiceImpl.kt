@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import java.util.logging.Level
 
-private val LOG = logWithClass<ProductCompositeServiceImpl>()
+private val logger = logWithClass<ProductCompositeServiceImpl>()
 
 @RestController
 class ProductCompositeServiceImpl(
@@ -29,7 +29,7 @@ class ProductCompositeServiceImpl(
 
     @Suppress("UNCHECKED_CAST")
     override fun getProduct(productId: Int, delay: Int, faultPercent: Int): Mono<ProductAggregate> {
-        LOG.info("Will get composite product info for product.id={}", productId)
+        logger.info("Will get composite product info for product.id={}", productId)
         return Mono.zip(
             {
                 // Ignore the first element because of logAuthorizationInfo method
@@ -44,12 +44,12 @@ class ProductCompositeServiceImpl(
             integration.getRecommendations(productId).collectList(),
             integration.getReviews(productId).collectList(),
         )
-            .doOnError { LOG.warn("getProduct failed: {}", it.toString()) }
-            .log(LOG.name, Level.FINE)
+            .doOnError { logger.warn("getProduct failed: {}", it.toString()) }
+            .log(logger.name, Level.FINE)
     }
 
     override fun createProduct(body: ProductAggregate): Mono<Void> = try {
-        LOG.debug("createCompositeProduct: creates a new composite entity for productId: {}", body.productId)
+        logger.debug("createCompositeProduct: creates a new composite entity for productId: {}", body.productId)
 
         val productMono = integration.createProduct(
             Product(
@@ -85,7 +85,7 @@ class ProductCompositeServiceImpl(
             )
         }
 
-        LOG.debug("createProduct: composite entities created for productId: {}", body.productId)
+        logger.debug("createProduct: composite entities created for productId: {}", body.productId)
 
         Mono.zip(
             {},
@@ -95,16 +95,15 @@ class ProductCompositeServiceImpl(
             *reviewMonos.toTypedArray()
         )
             .doOnError {
-                LOG.warn("createProduct failed: {}", it.toString())
+                logger.warn("createProduct failed: {}", it.toString())
             }.then()
-
     } catch (rex: RuntimeException) {
-        LOG.warn("createProduct failed", rex)
+        logger.warn("createProduct failed", rex)
         throw rex
     }
 
     override fun deleteProduct(productId: Int): Mono<Void> = try {
-        LOG.debug("deleteCompositeProduct: Deletes a product aggregate for productId: {}", productId)
+        logger.debug("deleteCompositeProduct: Deletes a product aggregate for productId: {}", productId)
 
         Mono.zip(
             {},
@@ -113,11 +112,11 @@ class ProductCompositeServiceImpl(
             integration.deleteRecommendations(productId),
             integration.deleteReviews(productId)
         )
-            .doOnError { LOG.warn("delete failed: {}", it.toString()) }
-            .log(LOG.name, Level.FINE)
+            .doOnError { logger.warn("delete failed: {}", it.toString()) }
+            .log(logger.name, Level.FINE)
             .then()
     } catch (re: RuntimeException) {
-        LOG.warn("deleteCompositeProduct failed: {}", re.toString())
+        logger.warn("deleteCompositeProduct failed: {}", re.toString())
         throw re
     }
 
@@ -125,7 +124,7 @@ class ProductCompositeServiceImpl(
         product: Product,
         recommendations: List<Recommendation>,
         reviews: List<Review>
-    ): ProductAggregate  =
+    ): ProductAggregate =
         ProductAggregate(
             product.productId,
             product.name,
@@ -140,29 +139,28 @@ class ProductCompositeServiceImpl(
             )
         )
 
-
     private fun logAuthorizationInfo() = securityContext()
         .doOnNext {
             if (it?.authentication != null && it.authentication is JwtAuthenticationToken) {
                 val jwtToken = (it.authentication as JwtAuthenticationToken).token
                 logAuthorizationInfo(jwtToken)
             } else {
-                LOG.warn("No JWT based Authentication supplied, running tests are we?")
+                logger.warn("No JWT based Authentication supplied, running tests are we?")
             }
         }
 
-    private fun logAuthorizationInfo(jwt: Jwt?): Unit {
+    private fun logAuthorizationInfo(jwt: Jwt?) {
         if (jwt == null) {
-            LOG.warn("No JWT supplied, running tests are we?")
+            logger.warn("No JWT supplied, running tests are we?")
         } else {
-            if (LOG.isDebugEnabled) {
+            if (logger.isDebugEnabled) {
                 val issuer = jwt.issuer
                 val audience = jwt.audience
-                val subject = jwt.claims["sub"];
+                val subject = jwt.claims["sub"]
                 val scopes = jwt.claims["scopes"]
                 val expires = jwt.claims["exp"]
 
-                LOG.debug(
+                logger.debug(
                     "Authorization info: Subject: {}, scopes: {}, expires: {}, issuer: {}, audience: {}",
                     subject,
                     scopes,

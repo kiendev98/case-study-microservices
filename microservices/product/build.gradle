@@ -1,3 +1,5 @@
+import org.springframework.boot.buildpack.platform.build.PullPolicy
+
 plugins {
     alias(gradleBuild.plugins.kotlin.spring)
     alias(gradleBuild.plugins.spring.boot)
@@ -5,22 +7,41 @@ plugins {
 }
 
 dependencies {
-    implementation libs.bundles.kotlin
-    implementation libs.jackson.kotlin
+    implementation libs.bundles.kotlin,
+            libs.kotlin.jackson,
+            libs.kotlin.reactor
 
-    implementation libs.bundles.spring.web.flux
-    implementation libs.spring.boot.data.mongodb.reactive
+    implementation libs.bundles.spring.reactiveWebServer,
+            libs.spring.boot.data.mongodb.reactive,
+            libs.spring.retry
 
-    implementation platform(boms.spring.cloud.dependencies)
-    implementation libs.bundles.spring.cloud.base
+    implementation platform(boms.spring.cloud),
+            libs.bundles.spring.cloud.base
 
-    implementation project(":util")
-    implementation project(":api")
+    implementation project(":util"), project(":api")
 
-    testImplementation testLibs.bundles.test
-    testImplementation testFixtures(project(":util"))
+    testImplementation testLibs.bundles.test,
+            testFixtures(project(":util"))
 }
 
 jar {
     enabled = false
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events = ["passed", "failed", "skipped"]
+    }
+}
+
+bootBuildImage {
+    builder = "paketobuildpacks/builder:base"
+    runImage = "paketobuildpacks/run:base-cnb"
+    pullPolicy = PullPolicy.IF_NOT_PRESENT
+    imageName = "${rootProject.name}/${project.name}"
+}
+
+tasks.register("buildImages") {
+    dependsOn "bootBuildImage"
 }

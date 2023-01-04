@@ -27,7 +27,7 @@ class PersistenceTests(
 
     @BeforeEach
     fun setupDb() {
-        StepVerifier.create(repository.deleteAll()).verifyComplete();
+        StepVerifier.create(repository.deleteAll()).verifyComplete()
 
         val entity = ProductEntity(1, "n", 1)
         StepVerifier.create(repository.save(entity))
@@ -107,8 +107,8 @@ class PersistenceTests(
 
     private infix fun ProductEntity.shouldBeEqual(product: ProductEntity): Boolean =
         id == product.id &&
-                version == product.version &&
-                productId == product.productId &&
-                name == product.name &&
-                weight == product.weight
+            version == product.version &&
+            productId == product.productId &&
+            name == product.name &&
+            weight == product.weight
 }

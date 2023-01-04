@@ -1,16 +1,19 @@
 plugins {
-    alias(gradleBuild.plugins.spring.dependency.management)
     id "java-test-fixtures"
 }
 
 dependencies {
     implementation libs.bundles.kotlin
 
-    implementation platform(boms.spring.boot.dependencies)
-    implementation libs.spring.boot.webflux
+    implementation platform(boms.spring.boot),
+            libs.spring.boot.webflux
+
     implementation project(":api")
 
-    testFixturesImplementation platform(boms.spring.boot.dependencies)
-    testFixturesImplementation testLibs.bundles.test
-    testFixturesImplementation testLibs.bundles.testcontainers
+    testFixturesImplementation platform(boms.testcontainers),
+            platform(boms.spring.boot),
+            testLibs.bundles.test,
+            testLibs.bundles.testcontainers,
+            testLibs.testcontainers.postgresql,
+            testLibs.testcontainers.mongodb
 }

@@ -12,7 +12,6 @@ fun RecommendationEntity.toApi(): Recommendation =
         content = this.content,
     )
 
-
 fun Recommendation.toEntity(): RecommendationEntity =
     RecommendationEntity(
         productId = this.productId,

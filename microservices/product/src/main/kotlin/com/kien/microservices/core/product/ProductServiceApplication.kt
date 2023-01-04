@@ -4,7 +4,7 @@ import com.kien.util.logs.logWithClass
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-val LOG = logWithClass<ProductServiceApplication>()
+val logger = logWithClass<ProductServiceApplication>()
 
 @SpringBootApplication(scanBasePackages = ["com.kien"])
 class ProductServiceApplication
@@ -15,5 +15,5 @@ fun main(args: Array<String>) {
     val mongoDbHost = applicationContext.environment.getProperty("spring.data.mongodb.host")
     val mongoDbPort = applicationContext.environment.getProperty("spring.data.mongodb.port")
 
-    LOG.info("Connected to MongoDb: $mongoDbHost:$mongoDbPort")
+    logger.info("Connected to MongoDb: $mongoDbHost:$mongoDbPort")
 }

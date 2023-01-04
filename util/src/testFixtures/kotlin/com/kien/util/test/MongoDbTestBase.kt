@@ -15,7 +15,7 @@ abstract class MongoDbTestBase {
         @JvmStatic
         @DynamicPropertySource
         fun setProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.data.mongodb.host") { database.containerIpAddress }
+            registry.add("spring.data.mongodb.host") { database.host }
             registry.add("spring.data.mongodb.port") { database.getMappedPort(27017) }
             registry.add("spring.data.mongodb.database") { "test" }
         }

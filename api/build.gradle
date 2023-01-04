@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     implementation libs.bundles.kotlin
-    implementation platform(boms.spring.boot.dependencies)
-    implementation libs.spring.boot.webflux
+    implementation platform(boms.spring.boot),
+            libs.spring.boot.webflux
     implementation libs.openapi.common
 }

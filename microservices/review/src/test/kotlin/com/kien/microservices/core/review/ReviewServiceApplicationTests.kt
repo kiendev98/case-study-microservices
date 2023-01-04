@@ -73,7 +73,7 @@ internal class ReviewServiceApplicationTests(
             sendCreateReviewEvent(productId, reviewId)
         }
 
-        thrown.message shouldBe  "Duplicate key, Product Id: 1, Review Id: 1"
+        thrown.message shouldBe "Duplicate key, Product Id: 1, Review Id: 1"
         repository.count() shouldBe 1
     }
 
@@ -129,13 +129,12 @@ internal class ReviewServiceApplicationTests(
             .jsonPath("$.message").isEqualTo("Invalid productId: $productIdInvalid")
     }
 
-
     private fun getReview(productId: Int): WebTestClient.ResponseSpec =
         getReview("?productId=$productId")
 
     private fun getReview(recommendationPath: String): WebTestClient.ResponseSpec =
         client.get()
-            .uri("/review${recommendationPath}")
+            .uri("/review$recommendationPath")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)

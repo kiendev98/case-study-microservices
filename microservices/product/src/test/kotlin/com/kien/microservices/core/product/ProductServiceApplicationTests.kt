@@ -106,7 +106,7 @@ class ProductServiceApplicationTests(
             .expectStatus().isEqualTo(HttpStatus.NOT_FOUND)
             .expectBody()
             .jsonPath("$.path").isEqualTo("/product/$productIdNotFound")
-            .jsonPath("$.message").isEqualTo("No product found for productId: $productIdNotFound");
+            .jsonPath("$.message").isEqualTo("No product found for productId: $productIdNotFound")
     }
 
     @Test
@@ -116,8 +116,7 @@ class ProductServiceApplicationTests(
             .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
             .expectBody()
             .jsonPath("$.path").isEqualTo("/product/$productIdInvalid")
-            .jsonPath("$.message").isEqualTo("Invalid productId: $productIdInvalid");
-
+            .jsonPath("$.message").isEqualTo("Invalid productId: $productIdInvalid")
     }
 
     private fun getProduct(productId: Int): WebTestClient.ResponseSpec =
@@ -125,7 +124,7 @@ class ProductServiceApplicationTests(
 
     private fun getProduct(productPath: String): WebTestClient.ResponseSpec =
         client.get()
-            .uri("/product${productPath}")
+            .uri("/product$productPath")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)

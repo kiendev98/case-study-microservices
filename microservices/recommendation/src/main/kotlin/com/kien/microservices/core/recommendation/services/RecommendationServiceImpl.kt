@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.logging.Level
 
-private val LOG = logWithClass<RecommendationServiceImpl>()
+private val logger = logWithClass<RecommendationServiceImpl>()
 
 @RestController
 class RecommendationServiceImpl(
@@ -23,10 +23,10 @@ class RecommendationServiceImpl(
         if (productId < 1) {
             throw InvalidInputException("Invalid productId: $productId")
         } else {
-            LOG.info("Will get recommendations for product with id={}", productId)
+            logger.info("Will get recommendations for product with id={}", productId)
 
             repository.findByProductId(productId)
-                .log(LOG.name, Level.FINE)
+                .log(logger.name, Level.FINE)
                 .map { it.toApi() }
                 .map {
                     it.serviceAddress = serviceUtil.serviceAddress
@@ -40,19 +40,18 @@ class RecommendationServiceImpl(
         } else {
             body.toEntity()
                 .let { repository.save(it) }
-                .log(LOG.name, Level.FINE)
+                .log(logger.name, Level.FINE)
                 .onErrorMap(DuplicateKeyException::class.java) {
                     InvalidInputException("Duplicate key, Product Id: ${body.productId}, Recommendation Id: ${body.recommendationId}")
                 }
                 .map { it.toApi() }
         }
 
-
     override fun deleteRecommendations(productId: Int): Mono<Void> =
         if (productId < 1) {
             throw InvalidInputException("Invalid productId: $productId")
         } else {
-            LOG.debug(
+            logger.debug(
                 "deleteRecommendations: tries to delete recommendations for the product with productId: {}",
                 productId
             )

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.function.Consumer
 
-private val LOG = logWithClass<MessageProcessorConfig>()
+private val logger = logWithClass<MessageProcessorConfig>()
 
 @Configuration
 class MessageProcessorConfig(
@@ -19,12 +19,12 @@ class MessageProcessorConfig(
 
     @Bean
     fun messageProcessor(): Consumer<Event<Int, Review>> = Consumer {
-        LOG.info("Process message created at {}...", it.eventCreatedAt)
+        logger.info("Process message created at {}...", it.eventCreatedAt)
 
         when (it.eventType) {
             Type.CREATE -> {
                 val review: Review = it.data!!
-                LOG.info(
+                logger.info(
                     "Create review with ID: {}/{}",
                     review.productId,
                     review.reviewId
@@ -33,7 +33,7 @@ class MessageProcessorConfig(
             }
             Type.DELETE -> {
                 val productId: Int = it.key
-                LOG.info(
+                logger.info(
                     "Delete reviews with ProductID: {}",
                     productId
                 )
@@ -41,11 +41,11 @@ class MessageProcessorConfig(
             }
             else -> {
                 val errorMessage = "Incorrect event type: ${it.eventType}, expected a CREATE or DELETE event"
-                LOG.warn(errorMessage)
+                logger.warn(errorMessage)
                 throw EventProcessingException(errorMessage)
             }
         }
 
-        LOG.info("Message processing done!")
+        logger.info("Message processing done!")
     }
 }

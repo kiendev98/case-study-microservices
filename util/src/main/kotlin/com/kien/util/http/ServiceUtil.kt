@@ -13,16 +13,15 @@ class ServiceUtil(
     val serviceAddress: String
         get() = findMyHostname() + "/" + findMyIpAddress() + ":" + port
 
-    private fun findMyHostname(): String =
-        try {
-            InetAddress.getLocalHost().hostName
-        } catch (e: UnknownHostException) {
-            "unknown host name"
-        }
+    private fun findMyHostname(): String = try {
+        InetAddress.getLocalHost().hostName
+    } catch (e: UnknownHostException) {
+        "unknown host name"
+    }
 
     private fun findMyIpAddress(): String = try {
-            InetAddress.getLocalHost().hostAddress
-        } catch (e: UnknownHostException) {
-            "unknown IP address"
-        }
+        InetAddress.getLocalHost().hostAddress
+    } catch (e: UnknownHostException) {
+        "unknown IP address"
+    }
 }

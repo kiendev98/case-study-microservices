@@ -11,8 +11,10 @@ class ProductEntity(
     var name: String,
     var weight: Int,
 ) {
-    @Id var id: String? = null
-    @Version var version: Int? = null
+    @Id
+    var id: String? = null
+    @Version
+    var version: Int? = null
 
     override fun hashCode(): Int = this::class.hashCode()
 }

@@ -3,7 +3,12 @@ import org.springframework.boot.buildpack.platform.build.PullPolicy
 plugins {
     alias(gradleBuild.plugins.kotlin.spring)
     alias(gradleBuild.plugins.spring.boot)
+    alias(gradleBuild.plugins.kotlin.jpa)
     alias(gradleBuild.plugins.spring.dependency.management)
+}
+
+allOpen {
+    annotations("javax.persistence.Entity", "javax.persistence.MappedSuperclass", "javax.persistence.Embedabble")
 }
 
 dependencies {
@@ -12,23 +17,20 @@ dependencies {
             libs.kotlin.reactor
 
     implementation libs.bundles.spring.reactiveWebServer,
-            libs.spring.boot.aop,
-            libs.spring.retry
-
-    implementation libs.openapi.webfluxUi
+            libs.spring.retry,
+            libs.spring.boot.data.jpa
 
     implementation platform(boms.spring.cloud),
             libs.bundles.spring.cloud.base
 
-    implementation libs.spring.boot.security,
-        libs.bundles.resourceServer
-
-    implementation libs.bundles.resilience4j
+    implementation libs.postgresql
 
     implementation project(":util"), project(":api")
 
-    testImplementation testLibs.bundles.test
-    testImplementation "org.springframework.cloud:spring-cloud-stream::test-binder"
+    testImplementation testFixtures(project(":util")),
+            platform(boms.testcontainers),
+            testLibs.bundles.test,
+            testLibs.testcontainers.postgresql
 }
 
 jar {

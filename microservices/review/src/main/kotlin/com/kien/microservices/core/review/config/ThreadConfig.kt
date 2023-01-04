@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration
 import reactor.core.scheduler.Scheduler
 import reactor.core.scheduler.Schedulers
 
-private val LOG = logWithClass<ThreadConfig>()
+private val logger = logWithClass<ThreadConfig>()
 
 @Configuration
 class ThreadConfig(
@@ -17,7 +17,7 @@ class ThreadConfig(
 
     @Bean
     fun jdbcScheduler(): Scheduler {
-        LOG.info("Creates a jdbcScheduler with thread pool size = {}", threadPoolSize)
+        logger.info("Creates a jdbcScheduler with thread pool size = {}", threadPoolSize)
         return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "jdbc-pool")
     }
 }

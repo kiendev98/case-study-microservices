@@ -116,10 +116,10 @@ class PersistenceTests(
 
     private infix fun RecommendationEntity.shouldBeEqual(entity: RecommendationEntity): Boolean =
         id == entity.id &&
-        version == entity.version &&
-        productId == entity.productId &&
-        recommendationId == entity.recommendationId &&
-        author == entity.author &&
-        rating == entity.rating &&
-        content == entity.content
+            version == entity.version &&
+            productId == entity.productId &&
+            recommendationId == entity.recommendationId &&
+            author == entity.author &&
+            rating == entity.rating &&
+            content == entity.content
 }

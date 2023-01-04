@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration
 import reactor.core.scheduler.Scheduler
 import reactor.core.scheduler.Schedulers
 
-val LOG = logWithClass<ThreadConfig>()
+val logger = logWithClass<ThreadConfig>()
 
 @Configuration
 class ThreadConfig(
@@ -17,7 +17,7 @@ class ThreadConfig(
 
     @Bean
     fun publishEventScheduler(): Scheduler {
-        LOG.info("Creates a messageScheduler with connectionPoolSize = {}", threadPoolSize)
+        logger.info("Creates a messageScheduler with connectionPoolSize = {}", threadPoolSize)
         return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "publish-tool")
     }
 }

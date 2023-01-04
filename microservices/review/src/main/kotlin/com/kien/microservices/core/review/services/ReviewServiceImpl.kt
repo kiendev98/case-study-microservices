@@ -17,7 +17,7 @@ import reactor.kotlin.core.publisher.toMono
 import java.util.concurrent.Callable
 import java.util.logging.Level.FINE
 
-private val LOG = logWithClass<ReviewServiceImpl>()
+private val logger = logWithClass<ReviewServiceImpl>()
 
 @RestController
 class ReviewServiceImpl(
@@ -38,11 +38,11 @@ class ReviewServiceImpl(
         if (productId < 1) {
             throw InvalidInputException("Invalid productId: $productId")
         } else {
-            LOG.info("Will get reviews for product with id={}", productId)
+            logger.info("Will get reviews for product with id={}", productId)
 
             Callable { internalGetReviews(productId) }.toMono()
                 .flatMapMany { it.toFlux() }
-                .log(LOG.name, FINE)
+                .log(logger.name, FINE)
                 .subscribeOn(jdbcScheduler)
         }
 
@@ -59,14 +59,14 @@ class ReviewServiceImpl(
         repository.findByProductId(productId)
             .map { it.toApi() }
             .onEach { it.serviceAddress = serviceUtil.serviceAddress }
-            .apply { LOG.debug("getReviews: response size: {}", size) }
+            .apply { logger.debug("getReviews: response size: {}", size) }
 
     private fun internalCreateReview(body: Review): Review =
         try {
             body.toEntity()
                 .let { repository.save(it) }
                 .apply {
-                    LOG.debug(
+                    logger.debug(
                         "createReview: created a review entity: {}/{}",
                         body.productId,
                         body.reviewId
@@ -80,7 +80,7 @@ class ReviewServiceImpl(
         }
 
     private fun internalDeleteReviews(productId: Int) {
-        LOG.debug(
+        logger.debug(
             "deleteReviews: tries to delete reviews for the product with productId: {}",
             productId
         )

@@ -36,7 +36,7 @@ class DefaultSecurityConfig {
 
     @Bean
     fun users(): UserDetailsService {
-        val user = User.withDefaultPasswordEncoder()
+        val user = User.builder()
             .username("u")
             .password("p")
             .roles("USER")

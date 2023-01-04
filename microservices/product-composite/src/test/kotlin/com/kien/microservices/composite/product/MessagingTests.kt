@@ -24,7 +24,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
 import java.util.Collections.singletonList
 
-private val LOG = logWithClass<MessagingTests>()
+private val logger = logWithClass<MessagingTests>()
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -40,7 +40,7 @@ private val LOG = logWithClass<MessagingTests>()
 class MessagingTests(
     @Autowired private val target: OutputDestination,
     @Autowired private val client: WebTestClient
-)  {
+) {
 
     @BeforeEach
     fun setUp() {
@@ -65,7 +65,6 @@ class MessagingTests(
             composite.productId,
             Product(composite.productId, composite.name, composite.weight)
         )
-
 
         expectedEvent.withoutCreatedAt() shouldEqualJson productMessages.first().withoutCreatedAt()
 
@@ -110,7 +109,6 @@ class MessagingTests(
             )
         )
         expectRecommendationEvent.withoutCreatedAt() shouldEqualJson recommendationMessages.first().withoutCreatedAt()
-
 
         reviewMessages.size shouldBe 1
         val rev = composite.reviews.first()
@@ -189,7 +187,7 @@ class MessagingTests(
         try {
             target.receive(0, bindingName)
         } catch (ex: NullPointerException) {
-            LOG.error("getMessage() received a NPE with binding = {}", bindingName)
+            logger.error("getMessage() received a NPE with binding = {}", bindingName)
             null
         }
 }

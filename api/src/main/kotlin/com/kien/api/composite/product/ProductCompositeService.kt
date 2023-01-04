@@ -10,7 +10,6 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 
-
 @SecurityRequirement(name = "security_auth")
 @Tag(name = "ProductComposite", description = "REST API for composite product information.")
 interface ProductCompositeService {
@@ -29,7 +28,8 @@ interface ProductCompositeService {
             ApiResponse(responseCode = "200", description = "\${api.responseCodes.ok.description}"),
             ApiResponse(responseCode = "400", description = "\${api.responseCodes.badRequest.description}"),
             ApiResponse(responseCode = "404", description = "\${api.responseCodes.notFound.description}"),
-            ApiResponse(responseCode = "422", description = "\${api.responseCodes.unprocessableEntity.description}")]
+            ApiResponse(responseCode = "422", description = "\${api.responseCodes.unprocessableEntity.description}")
+        ]
     )
     @GetMapping(
         value = ["/product-composite/{productId}"],
@@ -79,7 +79,8 @@ interface ProductCompositeService {
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "400", description = "\${api.responseCodes.badRequest.description}"),
-            ApiResponse(responseCode = "422", description = "\${api.responseCodes.unprocessableEntity.description}")]
+            ApiResponse(responseCode = "422", description = "\${api.responseCodes.unprocessableEntity.description}")
+        ]
     )
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping(value = ["/product-composite/{productId}"])

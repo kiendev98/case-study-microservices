@@ -22,6 +22,10 @@ subprojects {
         }
     }
 
+    kotlinter {
+        disabledRules = ["no-wildcard-imports"]
+    }
+
 }
 
 dockerCompose {

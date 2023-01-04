@@ -1,3 +1,5 @@
+import org.springframework.boot.buildpack.platform.build.PullPolicy
+
 plugins {
     alias(gradleBuild.plugins.kotlin.spring)
     alias(gradleBuild.plugins.spring.boot)
@@ -5,13 +7,15 @@ plugins {
 }
 
 dependencies {
-    implementation libs.bundles.kotlin
-    implementation libs.jackson.kotlin
+    implementation libs.bundles.kotlin,
+            libs.kotlin.jackson
 
-    implementation libs.bundles.spring.web.flux
+    implementation libs.spring.boot.web,
+            libs.spring.boot.actuator,
+            libs.spring.retry
 
-    implementation platform(boms.spring.cloud.dependencies)
-    implementation libs.bundles.spring.cloud.base
+    implementation platform(boms.spring.cloud),
+            libs.bundles.spring.cloud.base
 
     implementation libs.spring.security.oauth2.authorization.server
 
@@ -24,3 +28,20 @@ jar {
     enabled = false
 }
 
+test {
+    useJUnitPlatform()
+    testLogging {
+        events = ["passed", "failed", "skipped"]
+    }
+}
+
+bootBuildImage {
+    builder = "paketobuildpacks/builder:base"
+    runImage = "paketobuildpacks/run:base-cnb"
+    pullPolicy = PullPolicy.IF_NOT_PRESENT
+    imageName = "${rootProject.name}/${project.name}"
+}
+
+tasks.register("buildImages") {
+    dependsOn "bootBuildImage"
+}

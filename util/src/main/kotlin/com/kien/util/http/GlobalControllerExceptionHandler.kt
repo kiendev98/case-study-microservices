@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-
-private val LOG = logWithClass<GlobalControllerExceptionHandler>()
+private val logger = logWithClass<GlobalControllerExceptionHandler>()
 
 @RestControllerAdvice
 class GlobalControllerExceptionHandler {
@@ -52,7 +51,7 @@ class GlobalControllerExceptionHandler {
     ): HttpErrorInfo {
         val path = request.path.pathWithinApplication().value()
         val message = ex.message
-        LOG.debug("Returning HTTP status: {} for path: {}, message: {}", httpStatus, path, message)
+        logger.debug("Returning HTTP status: {} for path: {}, message: {}", httpStatus, path, message)
         return HttpErrorInfo(
             httpStatus = httpStatus,
             path = path,
