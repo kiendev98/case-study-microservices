@@ -9,7 +9,7 @@ springdoc:
     oauth2-redirect-url: https://localhost:8443/webjars/swagger-ui/oauth2-redirect.html
     oauth:
       clientId: writer
-      clientSecret: '{cipher}4ec25f436feb83f24d23a89f70b5bc374d4afac0b4693bd9fe527183d1f83893'
+      clientSecret: password
       useBasicAuthenticationWithAccessCodeGrant: true
   oAuthFlow:
     authorizationUrl: https://localhost:8443/oauth2/authorize

@@ -38,10 +38,6 @@ readinessProbe:
 configmap:
   enabled: false
 
-resources:
-  limits:
-    memory: 350Mi
-
 service:
   type: ClusterIP
   ports:

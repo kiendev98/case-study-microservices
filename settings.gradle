@@ -10,8 +10,6 @@ include "microservices:product-composite"
 include "microservices:recommendation"
 include "microservices:review"
 
-enableFeaturePreview('VERSION_CATALOGS')
-
 dependencyResolutionManagement {
     versionCatalogs {
         String kotlinVersion = "1.7.22"

@@ -37,10 +37,6 @@ readinessProbe:
   failureThreshold: 3
   successThreshold: 1
 
-resources:
-  limits:
-    memory: 512Mi
-
 service:
   ports:
     - port: 9411

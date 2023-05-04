@@ -7,7 +7,7 @@ spring.jpa.hibernate.ddl-auto: update
 spring.datasource:
   url: jdbc:postgresql://localhost/review-db
   username: user
-  password: '{cipher}24b93c790fa2ed0dc5a6a2b8c39853cf4d6cd6100c248de5f279fb5dd78e7be6'
+  password: password
 
 spring.datasource.hikari.initializationFailTimeout: 60000
 

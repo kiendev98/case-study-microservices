@@ -2,7 +2,7 @@ fullnameOverride: postgresql
 
 image:
   repository: registry.hub.docker.com/library
-  name: postgresql
+  name: postgres
   tag: 14.0
   pullPolicy: IfNotPresent
 

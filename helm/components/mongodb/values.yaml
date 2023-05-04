@@ -2,7 +2,7 @@ fullnameOverride: mongodb
 
 image:
   repository: registry.hub.docker.com/library
-  name: mongod
+  name: mongo
   tag: 4.4.2
   pullPolicy: IfNotPresent
 
