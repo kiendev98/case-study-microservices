@@ -30,7 +30,7 @@ class AuthorizationServerConfig {
 
         val writerClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("writer")
-            .clientSecret("{noop}password")
+            .clientSecret("{noop}writerSecret")
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
@@ -56,7 +56,7 @@ class AuthorizationServerConfig {
 
         val readerClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("reader")
-            .clientSecret("{noop}password")
+            .clientSecret("{noop}readerSecret")
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)

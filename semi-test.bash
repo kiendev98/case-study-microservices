@@ -1,4 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bas
+# shellcheck disable=SC2223
+# shellcheck disable=SC2199
+
+h
 #
 # Sample usage:
 #

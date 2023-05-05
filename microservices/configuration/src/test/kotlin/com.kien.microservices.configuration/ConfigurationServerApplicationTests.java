@@ -10,6 +10,6 @@ class ConfigurationServerApplicationTests {
 
   @Test
   void contextLoads() {
-  }
 
+  }
 }
