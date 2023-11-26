@@ -15,7 +15,6 @@ import reactor.test.StepVerifier
 @DataMongoTest(
     excludeAutoConfiguration = [EmbeddedMongoAutoConfiguration::class],
     properties = [
-        "spring.cloud.config.enabled=false",
         "spring.data.mongodb.auto-index-creation=true"
     ]
 )

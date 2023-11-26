@@ -22,7 +22,6 @@ import java.util.function.Consumer
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
         "spring.jpa.hibernate.ddl-auto=update",
-        "spring.cloud.config.enabled=false"
     ]
 )
 internal class ReviewServiceApplicationTests(

@@ -1,11 +1,11 @@
-fullnameOverride: recommendation
+fullnameOverride: auth-server
 
 image:
-  name: recommendation
+  name: auth-server
 
 env:
   SPRING_PROFILES_ACTIVE: "docker"
-  SPRING_CONFIG_LOCATION: file:/config-repo/application.yml,file:/config-repo/recommendation.yml
+  SPRING_CONFIG_LOCATION: file:/config-repo/application.yml,file:/config-repo/auth-server.yml
 
 livenessProbe_enabled: true
 

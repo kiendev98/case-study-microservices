@@ -1,8 +1,4 @@
-#!/usr/bin/env bas
-# shellcheck disable=SC2223
-# shellcheck disable=SC2199
-
-h
+#!/usr/bin/env bash
 #
 # Sample usage:
 #
@@ -10,10 +6,13 @@ h
 #
 : ${HOST=localhost}
 : ${PORT=8443}
+: ${USE_K8S=false}
 : ${PROD_ID_REVS_RECS=1}
 : ${PROD_ID_NOT_FOUND=13}
 : ${PROD_ID_NO_RECS=113}
 : ${PROD_ID_NO_REVS=213}
+: ${SKIP_CB_TESTS=false}
+: ${NAMESPACE=hands-on}
 
 function assertCurl() {
 
@@ -170,12 +169,76 @@ function setupTestdata() {
 
 }
 
+function testCircuitBreaker() {
+
+    echo "Start Circuit Breaker tests!"
+
+    if [[ $USE_K8S == "false" ]]
+    then
+        EXEC="docker-compose exec -T product-composite"
+    else
+        EXEC="kubectl -n $NAMESPACE exec deploy/product-composite -- "
+    fi
+
+    # First, use the health - endpoint to verify that the circuit breaker is closed
+    assertEqual "CLOSED" "$($EXEC curl -s http://localhost/actuator/health | jq -r .components.circuitBreakers.details.product.details.state)"
+
+    # Open the circuit breaker by running three slow calls in a row, i.e. that cause a timeout exception
+    # Also, verify that we get 500 back and a timeout related error message
+    for ((n=0; n<3; n++))
+    do
+        assertCurl 500 "curl -k https://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS?delay=3 $AUTH -s"
+        message=$(echo $RESPONSE | jq -r .message)
+        assertEqual "Did not observe any item or terminal signal within 2000ms" "${message:0:57}"
+    done
+
+    # Verify that the circuit breaker is open
+    assertEqual "OPEN" "$($EXEC curl -s http://localhost/actuator/health | jq -r .components.circuitBreakers.details.product.details.state)"
+
+    # Verify that the circuit breaker now is open by running the slow call again, verify it gets 200 back, i.e. fail fast works, and a response from the fallback method.
+    assertCurl 200 "curl -k https://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS?delay=3 $AUTH -s"
+    assertEqual "Fallback product$PROD_ID_REVS_RECS" "$(echo "$RESPONSE" | jq -r .name)"
+
+    # Also, verify that the circuit breaker is open by running a normal call, verify it also gets 200 back and a response from the fallback method.
+    assertCurl 200 "curl -k https://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS $AUTH -s"
+    assertEqual "Fallback product$PROD_ID_REVS_RECS" "$(echo "$RESPONSE" | jq -r .name)"
+
+    # Verify that a 404 (Not Found) error is returned for a non existing productId ($PROD_ID_NOT_FOUND) from the fallback method.
+    assertCurl 404 "curl -k https://$HOST:$PORT/product-composite/$PROD_ID_NOT_FOUND $AUTH -s"
+    assertEqual "Product Id: $PROD_ID_NOT_FOUND not found in fallback cache!" "$(echo $RESPONSE | jq -r .message)"
+
+    # Wait for the circuit breaker to transition to the half open state (i.e. max 10 sec)
+    echo "Will sleep for 10 sec waiting for the CB to go Half Open..."
+    sleep 10
+
+    # Verify that the circuit breaker is in half open state
+    assertEqual "HALF_OPEN" "$($EXEC curl -s http://localhost/actuator/health | jq -r .components.circuitBreakers.details.product.details.state)"
+
+    # Close the circuit breaker by running three normal calls in a row
+    # Also, verify that we get 200 back and a response based on information in the product database
+    for ((n=0; n<3; n++))
+    do
+        assertCurl 200 "curl -k https://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS $AUTH -s"
+        assertEqual "product name C" "$(echo "$RESPONSE" | jq -r .name)"
+    done
+
+    # Verify that the circuit breaker is in closed state again
+    assertEqual "CLOSED" "$($EXEC curl -s http://localhost/actuator/health | jq -r .components.circuitBreakers.details.product.details.state)"
+
+    # Verify that the expected state transitions happened in the circuit breaker
+    assertEqual "CLOSED_TO_OPEN"      "$($EXEC curl -s http://localhost/actuator/circuitbreakerevents/product/STATE_TRANSITION | jq -r .circuitBreakerEvents[-3].stateTransition)"
+    assertEqual "OPEN_TO_HALF_OPEN"   "$($EXEC curl -s http://localhost/actuator/circuitbreakerevents/product/STATE_TRANSITION | jq -r .circuitBreakerEvents[-2].stateTransition)"
+    assertEqual "HALF_OPEN_TO_CLOSED" "$($EXEC curl -s http://localhost/actuator/circuitbreakerevents/product/STATE_TRANSITION | jq -r .circuitBreakerEvents[-1].stateTransition)"
+}
+
 set -e
 
 echo "Start Tests:" `date`
 
 echo "HOST=${HOST}"
 echo "PORT=${PORT}"
+echo "USE_K8S=${USE_K8S}"
+echo "SKIP_CB_TESTS=${SKIP_CB_TESTS}"
 
 if [[ $@ == *"start"* ]]
 then
@@ -188,20 +251,9 @@ fi
 
 waitForService curl -k https://$HOST:$PORT/actuator/health
 
-ACCESS_TOKEN=$(curl -k https://writer:writerSecret@$HOST:$PORT/oauth2/token -d grant_type=client_credentials -s | jq .access_token -r)
+ACCESS_TOKEN=$(curl -k https://writer:secret@$HOST:$PORT/oauth2/token -d grant_type=client_credentials -s | jq .access_token -r)
 echo ACCESS_TOKEN=$ACCESS_TOKEN
 AUTH="-H \"Authorization: Bearer $ACCESS_TOKEN\""
-
-# Verify access to Eureka and that all microservices are registered in Eureka
-assertCurl 200 "curl -H "accept:application/json" -k https://u:p@$HOST:$PORT/eureka/api/apps -s"
-assertEqual 6 $(echo $RESPONSE | jq ".applications.application | length")
-
-# Verify access to the Config server and that its encrypt/decrypt endpoints work
-assertCurl 200 "curl -H "accept:application/json" -k https://kien:password@$HOST:$PORT/config/product/docker -s"
-TEST_VALUE="hello world"
-ENCRYPTED_VALUE=$(curl -k https://kien:password@$HOST:$PORT/config/encrypt --data-urlencode "$TEST_VALUE" -s)
-DECRYPTED_VALUE=$(curl -k https://kien:password@$HOST:$PORT/config/decrypt -d $ENCRYPTED_VALUE -s)
-assertEqual "$TEST_VALUE" "$DECRYPTED_VALUE"
 
 setupTestdata
 
@@ -241,7 +293,7 @@ assertEqual "\"Type mismatch.\"" "$(echo $RESPONSE | jq .message)"
 assertCurl 401 "curl -k https://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS -s"
 
 # Verify that the reader - client with only read scope can call the read API but not delete API.
-READER_ACCESS_TOKEN=$(curl -k https://reader:readerSecret@$HOST:$PORT/oauth2/token -d grant_type=client_credentials -s | jq .access_token -r)
+READER_ACCESS_TOKEN=$(curl -k https://reader:secret@$HOST:$PORT/oauth2/token -d grant_type=client_credentials -s | jq .access_token -r)
 echo READER_ACCESS_TOKEN=$READER_ACCESS_TOKEN
 READER_AUTH="-H \"Authorization: Bearer $READER_ACCESS_TOKEN\""
 
@@ -255,8 +307,12 @@ assertCurl 200 "curl -ksL https://$HOST:$PORT/openapi/swagger-ui.html"
 assertCurl 200 "curl -ks  https://$HOST:$PORT/openapi/webjars/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config"
 assertCurl 200 "curl -ks  https://$HOST:$PORT/openapi/v3/api-docs"
 assertEqual "3.0.1" "$(echo $RESPONSE | jq -r .openapi)"
-assertEqual "https://$HOST:$PORT" "$(echo $RESPONSE | jq -r .servers[].url)"
 assertCurl 200 "curl -ks  https://$HOST:$PORT/openapi/v3/api-docs.yaml"
+
+if [[ $SKIP_CB_TESTS == "false" ]]
+then
+    testCircuitBreaker
+fi
 
 if [[ $@ == *"stop"* ]]
 then

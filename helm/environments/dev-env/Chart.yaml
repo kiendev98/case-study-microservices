@@ -21,17 +21,9 @@ dependencies:
     version: 1.0.0
     repository: file://../../components/postgresql
 
-  - name: configuration
+  - name: auth-server
     version: 1.0.0
-    repository: file://../../components/configuration
-
-  - name: gateway
-    version: 1.0.0
-    repository: file://../../components/gateway
-
-  - name: authorization
-    version: 1.0.0
-    repository: file://../../components/authorization
+    repository: file://../../components/auth-server
 
   - name: product
     version: 1.0.0

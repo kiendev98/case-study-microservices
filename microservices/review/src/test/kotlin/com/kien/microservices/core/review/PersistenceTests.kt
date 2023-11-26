@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional
 @DataJpaTest(
     properties = [
         "spring.jpa.hibernate.ddl-auto=update",
-        "spring.cloud.config.enabled=false"
     ]
 )
 @Transactional(propagation = Propagation.NOT_SUPPORTED)

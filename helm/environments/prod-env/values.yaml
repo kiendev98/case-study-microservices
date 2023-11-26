@@ -1,38 +1,33 @@
 secrets:
+  rabbitmq-credentials:
+    SPRING_RABBITMQ_USERNAME: rabbit-user-prod
+    SPRING_RABBITMQ_PASSWORD: rabbit-pwd-prod
 
-  config-server-secrets:
-    ENCRYPT_KEY: my-very-secure-encrypt-key
-    SPRING_SECURITY_USER_NAME: prod-usr
-    SPRING_SECURITY_USER_PASSWORD: prod-pwd
+  rabbitmq-zipkin-credentials:
+    RABBIT_USER: rabbit-user-prod
+    RABBIT_PASSWORD: rabbit-pwd-prod
 
-  config-client-credentials:
-    CONFIG_SERVER_USR: prod-usr
-    CONFIG_SERVER_PWD: prod-pwd
+  mongodb-credentials:
+    SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: admin
+    SPRING_DATA_MONGODB_USERNAME: mongodb-user-prod
+    SPRING_DATA_MONGODB_PASSWORD: mongodb-pwd-prod
 
-configuration:
-  image:
-    tag: v1
-  env:
-    LOGGING_LEVEL_ROOT: WARN
-    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info"
-  envFromSecretRefs:
-    - config-server-secrets
+  postgres-credentials:
+    SPRING_DATASOURCE_USERNAME: postgres-user-prod
+    SPRING_DATASOURCE_PASSWORD: postgres-pwd-prod
 
-gateway:
-  image:
-    tag: v1
-  env:
-    SPRING_PROFILES_ACTIVE: "docker,prod"
-  envFromSecretRefs:
-    - config-client-credentials
-
-authorization:
+auth-server:
   image:
     tag: v1
   env:
     SPRING_PROFILES_ACTIVE: "docker,prod"
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+  resources:
+    requests:
+      memory: 200Mi
+    limits:
+      memory: 400Mi
 
 product:
   image:
@@ -40,7 +35,13 @@ product:
   env:
     SPRING_PROFILES_ACTIVE: "docker,prod"
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+    - mongodb-credentials
+  resources:
+    requests:
+      memory: 200Mi
+    limits:
+      memory: 400Mi
 
 recommendation:
   image:
@@ -48,7 +49,13 @@ recommendation:
   env:
     SPRING_PROFILES_ACTIVE: "docker,prod"
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+    - mongodb-credentials
+  resources:
+    requests:
+      memory: 200Mi
+    limits:
+      memory: 400Mi
 
 review:
   image:
@@ -56,7 +63,13 @@ review:
   env:
     SPRING_PROFILES_ACTIVE: "docker,prod"
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+    - postgres-credentials
+  resources:
+    requests:
+      memory: 200Mi
+    limits:
+      memory: 400Mi
 
 product-composite:
   image:
@@ -64,9 +77,22 @@ product-composite:
   env:
     SPRING_PROFILES_ACTIVE: "docker,prod"
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+  resources:
+    requests:
+      memory: 200Mi
+    limits:
+      memory: 400Mi
 
 zipkin-server:
   env:
     LOGGING_LEVEL_ROOT: WARN
     RABBIT_ADDRESSES: 172.17.0.1
+  envFromSecretRefs:
+    - rabbitmq-zipkin-credentials
+  resources:
+    requests:
+      memory: 300Mi
+    limits:
+      memory: 600Mi
+

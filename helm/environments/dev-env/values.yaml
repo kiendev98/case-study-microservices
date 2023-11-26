@@ -1,43 +1,69 @@
 secrets:
-  config-server-secrets:
-    ENCRYPT_KEY: secure-encrypt-key
-    SPRING_SECURITY_USER_NAME: dev-usr
-    SPRING_SECURITY_USER_PASSWORD: dev-pwd
+  rabbitmq-server-credentials:
+    RABBITMQ_DEFAULT_USER: rabbit-user-dev
+    RABBITMQ_DEFAULT_PASS: rabbit-pwd-dev
 
-  config-client-credentials:
-    CONFIG_SERVER_USR: dev-usr
-    CONFIG_SERVER_PWD: dev-pwd
+  rabbitmq-credentials:
+    SPRING_RABBITMQ_USERNAME: rabbit-user-dev
+    SPRING_RABBITMQ_PASSWORD: rabbit-pwd-dev
+
+  rabbitmq-zipkin-credentials:
+    RABBIT_USER: rabbit-user-dev
+    RABBIT_PASSWORD: rabbit-pwd-dev
+
+  mongodb-server-credentials:
+    MONGO_INITDB_ROOT_USERNAME: mongodb-user-dev
+    MONGO_INITDB_ROOT_PASSWORD: mongodb-pwd-dev
+
+  mongodb-credentials:
+    SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: admin
+    SPRING_DATA_MONGODB_USERNAME: mongodb-user-dev
+    SPRING_DATA_MONGODB_PASSWORD: mongodb-pwd-dev
+
+  postgres-server-credentials:
+    POSTGRES_DB: review_db
+    POSTGRES_USER: postgres-user-dev
+    POSTGRES_PASSWORD: postgres-pwd-dev
+
+  postgres-credentials:
+    SPRING_DATASOURCE_USERNAME: postgres-user-dev
+    SPRING_DATASOURCE_PASSWORD: postgres-pwd-dev
+
+rabbitmq:
+  envFromSecretRefs:
+    - rabbitmq-server-credentials
+
+mongodb:
+  envFromSecretRefs:
+    - mongodb-server-credentials
 
 postgresql:
-  env:
-    POSTGRES_DB: review_db
-    POSTGRES_USER: user
-    POSTGRES_PASSWORD: password
-
-configuration:
   envFromSecretRefs:
-    - config-server-secrets
+    - postgres-server-credentials
 
-gateway:
+auth-server:
   envFromSecretRefs:
-    - config-client-credentials
-
-authorization:
-  envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
 
 product:
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+    - mongodb-credentials
 
 recommendation:
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+    - mongodb-credentials
 
 review:
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+    - postgres-credentials
 
 product-composite:
   envFromSecretRefs:
-    - config-client-credentials
+    - rabbitmq-credentials
+
+zipkin-server:
+  envFromSecretRefs:
+    - rabbitmq-zipkin-credentials

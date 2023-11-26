@@ -2,14 +2,8 @@ dependencies:
 - name: common
   repository: file://../../common
   version: 1.0.0
-- name: configuration
-  repository: file://../../components/configuration
-  version: 1.0.0
-- name: gateway
-  repository: file://../../components/gateway
-  version: 1.0.0
 - name: authorization
-  repository: file://../../components/authorization
+  repository: file://../../components/auth-server
   version: 1.0.0
 - name: product
   repository: file://../../components/product
@@ -26,5 +20,5 @@ dependencies:
 - name: zipkin-server
   repository: file://../../components/zipkin-server
   version: 1.0.0
-digest: sha256:a65760b8faf24b0dd67121cb2c5e63333c70f74ec88340ed8301f2d48bf65b82
-generated: "2023-01-02T00:13:10.911025+07:00"
+digest: sha256:f9d1e9aa147b7b1e07fb97ed68efac6d3b166ce03236ebeffcb81c176c038fb8
+generated: "2023-11-26T18:23:10.0358926+07:00"

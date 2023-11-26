@@ -11,14 +11,8 @@ dependencies:
 - name: postgresql
   repository: file://../../components/postgresql
   version: 1.0.0
-- name: configuration
-  repository: file://../../components/configuration
-  version: 1.0.0
-- name: gateway
-  repository: file://../../components/gateway
-  version: 1.0.0
-- name: authorization
-  repository: file://../../components/authorization
+- name: auth-server
+  repository: file://../../components/auth-server
   version: 1.0.0
 - name: product
   repository: file://../../components/product
@@ -35,5 +29,5 @@ dependencies:
 - name: zipkin-server
   repository: file://../../components/zipkin-server
   version: 1.0.0
-digest: sha256:3a8b760c0fc4ac777165dd558e3d2967e58b5f33dea9afbf0d866d99fcf08c1d
-generated: "2023-01-02T15:55:48.485364+07:00"
+digest: sha256:b37b5cdd104cf9879c21a10cfe87986b142e890f5b659ac1581ab017218b4835
+generated: "2023-11-26T17:09:45.2054005+07:00"

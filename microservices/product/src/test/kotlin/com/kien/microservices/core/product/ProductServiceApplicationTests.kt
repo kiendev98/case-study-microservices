@@ -20,10 +20,7 @@ import reactor.test.StepVerifier
 import java.util.function.Consumer
 
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = [
-        "spring.cloud.config.enabled=false"
-    ]
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class ProductServiceApplicationTests(
     @Autowired private val client: WebTestClient,

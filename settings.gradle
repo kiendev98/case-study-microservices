@@ -2,9 +2,7 @@ rootProject.name = "case-study-microservices"
 
 include "api"
 include "util"
-include "microservices:authorization"
-include "microservices:configuration"
-include "microservices:gateway"
+include "microservices:auth-server"
 include "microservices:product"
 include "microservices:product-composite"
 include "microservices:recommendation"
@@ -74,8 +72,6 @@ dependencyResolutionManagement {
             library("spring-cloud-stream-kafka", "org.springframework.cloud", "spring-cloud-starter-stream-kafka").withoutVersion()
             library("spring-cloud-sleuth", "org.springframework.cloud", "spring-cloud-starter-sleuth").withoutVersion()
             library("spring-cloud-sleuth-zipkin", "org.springframework.cloud", "spring-cloud-sleuth-zipkin").withoutVersion()
-            library("spring-cloud-config", "org.springframework.cloud", "spring-cloud-starter-config").withoutVersion()
-            library("spring-cloud-config-server", "org.springframework.cloud", "spring-cloud-config-server").withoutVersion()
             library("spring-cloud-gateway", "org.springframework.cloud", "spring-cloud-starter-gateway").withoutVersion()
 
             library("postgresql", "org.postgresql", "postgresql").withoutVersion()
@@ -96,7 +92,6 @@ dependencyResolutionManagement {
                     [
                             "spring-cloud-stream-rabbit",
                             "spring-cloud-stream-kafka",
-                            "spring-cloud-config",
                             "spring-cloud-sleuth",
                             "spring-cloud-sleuth-zipkin"
                     ]
